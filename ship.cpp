@@ -285,7 +285,7 @@ void ship::draw()
             }
             if (!Keyboard::isKeyPressed(Keyboard::F))
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    struct timeval ts;
+
                     if (ShootingTime.getElapsedTime().asMilliseconds() > 120) {
                         if (bulletsSize) {
                             if (!godmode)
