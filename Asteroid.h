@@ -15,6 +15,14 @@
 
 using namespace sf;
 
+enum class ImprovementsTypes {
+    HPImprovement,
+    ammoImprovement,
+    shieldImprovement,
+    rocketsImprovement,
+    autoAimImprovement
+};
+
 class objects {
 public:
     RenderWindow* window;
@@ -130,70 +138,41 @@ public:
     void draw();
 };
 
-class UPhealthIcon : public ship {
-public:
-    std::vector<Sprite> HPbase;
-    Texture texture;
+class ImprovementsBase : public ship {
+    struct Improvements {
+        ImprovementsTypes type;
+        Sprite ImprovementSprite;
+    };
+    std::vector<Improvements> ImprovementsArray;
+    Texture HPImprTexture;
+    Texture ammoImprTexture;
+    Texture shieldImprTexture;
+    Texture rocketsImprTexture;
+    Texture autoAimImprTexture;
+    Sprite HPImprSprite;
+    Sprite ammoImprSprite;
+    Sprite shieldImprSprite;
+    Sprite rocketsImprSprite;
+    Sprite autoAimImprSprite;
 
-    UPhealthIcon();
+public:
+    ImprovementsBase();
     void draw();
-    void add(Vector2f& position);
+    void add(Vector2f& position, ImprovementsTypes type);
 };
 
-class UPammoIcon : public UPhealthIcon {
+class asteroids : public ImprovementsBase {
+
 public:
-    std::vector<Sprite> ammoBase;
-    Texture ammoTexture;
+    struct asteroidsArray {
+        Sprite sprite;
+        bool type;
+        int speed;
+        double frame = 0;
+        bool explosion = false;
+        float rotation;
+    };
 
-    UPammoIcon();
-    void draw();
-    void add(Vector2f& position);
-};
-
-class ShieldIcon : public UPammoIcon {
-public:
-    std::vector<Sprite> shieldBase;
-    Texture shieldIconTexture;
-
-    ShieldIcon();
-    void draw();
-    void add(Vector2f& position);
-};
-
-class RocketIcons : public ShieldIcon {
-public:
-    std::vector<Sprite> rocketsIconsBase;
-    Texture rocketIconTexture;
-
-    RocketIcons();
-    void draw();
-    void add(Vector2f& position);
-};
-
-class autoaimIcon : public RocketIcons {
-public:
-    std::vector<Sprite> autoaimIconsBase;
-    Texture autoaimIconTexture;
-
-    autoaimIcon();
-    void draw();
-    void add(Vector2f& position);
-};
-
-class asteroidsArray {
-public:
-    Sprite sprite;
-    bool type;
-    int speed;
-    double frame;
-    bool explosion;
-    float rotation;
-
-    asteroidsArray();
-};
-
-class asteroids : public autoaimIcon {
-public:
     std::vector<asteroidsArray> ast;
     Texture bigAstTexture;
     Texture smallAstTexture;
@@ -223,24 +202,20 @@ public:
     void draw();
 };
 
-class clissanShips {
-public:
-    Sprite sprite;
-    Sprite LifeSprite;
-    Vector2f pos;
-    int health;
-    double final;
-    bool destroyed;
-    uint32_t time1;
-    uint32_t time2;
-    bool selected;
-    bool shoot;
-
-    clissanShips();
-};
-
 class clissans : public laser {
 public:
+    struct clissanShips {
+        Sprite sprite;
+        Sprite LifeSprite;
+        Vector2f pos;
+        Clock shootingTime;
+        int health = 100;
+        double final = 0;
+        bool destroyed = false;
+        bool selected = false;
+        bool shoot = false;
+    };
+
     Texture clissanshipTexture;
     Texture clissansbulletTexture;
     Texture frameTexture;
@@ -314,7 +289,7 @@ public:
     unsigned short int freezeTime;
     unsigned short int NBexplAnimframeX;
     unsigned short int NBexplAnimframeY;
-    std::time_t freezeProgress;
+    Clock freezeProgress;
     int NeonBallLife;
     bool alive;
     bool explSound;
