@@ -1,5 +1,3 @@
-*.pro.user
-/expl
-Build/*
-!Build/Images
-!Build/Sounds
+Source/CMakeLists.txt.user
+build/
+
