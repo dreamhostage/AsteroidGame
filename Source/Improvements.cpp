@@ -44,7 +44,11 @@ void ImprovementsBase::draw()
                 if (ImprovementsArray[i].type == ImprovementsTypes::ammoImprovement) {
                     bulletsSize += 100;
                 } else if (ImprovementsArray[i].type == ImprovementsTypes::HPImprovement) {
-                    health += 50;
+                    if (health < 100) {
+                        health += 50;
+                        if (health > 100)
+                            health = 100;
+                    }
                 } else if (ImprovementsArray[i].type == ImprovementsTypes::shieldImprovement) {
                     shieldCount += 3;
                 } else if (ImprovementsArray[i].type == ImprovementsTypes::rocketsImprovement) {

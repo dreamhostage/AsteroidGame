@@ -59,9 +59,9 @@ public:
     bool GameOver;
     bool godmode;
     bool gameStarted;
-    bool select;
-    bool select2;
-    uint32_t resettime;
+    bool selectButton;
+    bool tapOnButton;
+    Clock PointsSpeedRaising;
     Vector2f globalCenter;
     Vector2u size;
     Vector2f position1;
@@ -77,7 +77,6 @@ public:
         int inMainY,
         int num_ammo,
         int num_asteroids = 0);
-    void startMenu();
 };
 
 class ship : public objects {
@@ -110,6 +109,7 @@ public:
     Text finalPointsText;
     Text rang;
     Clock ShootingTime;
+    Clock shipExplTime;
     int health;
     int bulletsSize;
     int shieldCount;
@@ -122,6 +122,7 @@ public:
     double bulletSpeed;
     double angle;
     double distanse;
+    int shipExplFrame;
     bool finalexpl;
     bool aimSelected;
     bool freeze;
@@ -134,11 +135,11 @@ public:
     ship();
     void addBullet(Vector2f& position, int rotation);
     void drawBullets();
-    void Gameover();
     void draw();
 };
 
 class ImprovementsBase : public ship {
+
     struct Improvements {
         ImprovementsTypes type;
         Sprite ImprovementSprite;
@@ -319,7 +320,18 @@ public:
     void draw();
 };
 
-class framework : public rockets {
+class Menus : public rockets {
+
+public:
+    Menus();
+    void startMenu();
+    void Gameover();
+    void resetGame();
+
+    bool pause;
+};
+
+class framework : public Menus {
 public:
     ~framework();
     framework(

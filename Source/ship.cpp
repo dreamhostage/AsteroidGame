@@ -21,6 +21,9 @@ ship::ship()
     shieldSound.setBuffer(shieldSoundBuffer);
     shot.setBuffer(shootBuffer);
 
+    shipExplSprite.setScale(2, 2);
+    shipExplSprite.setOrigin(96, 96);
+
     bulletSprite.setTexture(bulletTexture);
     ShipSprite.setTexture(shipTexture);
     size = shipTexture.getSize();
@@ -41,6 +44,7 @@ ship::ship()
     laserShootCount = 0;
     finalpoints = 0;
     points = 0;
+    shipExplFrame = 0;
 
     bulletsSizeText.setFont(font);
     finalPointsText.setFont(font);
@@ -97,135 +101,6 @@ void ship::drawBullets()
             position1.x + bulletSpeed * sin((angle)*M_PI / 180),
             position1.y + bulletSpeed * cos((angle)*M_PI / 180));
     }
-}
-void ship::Gameover()
-{
-    if (!finalexpl) {
-        finalexpl = true;
-        explosionSound.play();
-    }
-    static double k = 0;
-    ++k;
-    position1 = ShipSprite.getPosition();
-    angle = ShipSprite.getRotation() - 0.5;
-    shipExplSprite.setPosition(position1);
-    shipTexture.loadFromFile("Images/destroyedship.png");
-    if (k < 65) {
-        shipExplSprite.setScale(2, 2);
-
-        shipExplSprite.setOrigin(96, 96);
-        shipExplSprite.setTextureRect(IntRect(int(k) * 192, 0, 192, 192));
-        shipExplSprite.setPosition(ShipSprite.getPosition());
-        window->draw(shipExplSprite);
-        k += 0.2;
-    }
-    ShipSprite.setPosition(position1.x - 1, position1.y - 1);
-    ShipSprite.setRotation(angle);
-
-    if (!startposition) {
-        startposition = true;
-        gameoverSprite.setPosition(view.getCenter().x, view.getCenter().y - screenY / 2);
-        finalPointsText.setPosition(view.getCenter().x - 30, view.getCenter().y - 40);
-        rang.setPosition(view.getCenter().x - 280, view.getCenter().y + 40);
-        resettime = time(NULL);
-        view2 = view;
-    }
-
-    if (gameoverSprite.getPosition().y < view.getCenter().y - 100) {
-        gameoverSprite.setPosition(
-            gameoverSprite.getPosition().x, gameoverSprite.getPosition().y + 5);
-    } else {
-        if (finalpoints <= points) {
-            if (points > 0) {
-                finalpoints++;
-                finalPointsText.setString(std::to_string(finalpoints - 1));
-            } else {
-                finalPointsText.setString("0");
-                rang.setString("Your rang: looser of loosers");
-                window->draw(rang);
-            }
-        } else {
-            if (points < 10)
-                rang.setString("Your rang: flying turd");
-            else if (points < 50)
-                rang.setString("Your rang: autistic");
-            else if (points < 100)
-                rang.setString("Your rang: stupid warrior");
-            else if (points < 200)
-                rang.setString("Your rang: low warrior");
-            else if (points < 300)
-                rang.setString("Your rang: middle warrior");
-            else if (points < 400)
-                rang.setString("Your rang: warrior");
-            else if (points < 600)
-                rang.setString("Your rang: pretty warrior");
-            else if (points < 800)
-                rang.setString("Your rang: strong warrior");
-            else if (points < 1000)
-                rang.setString("Your rang: flying death");
-            else
-                rang.setString("Your rang: DOMINATOR");
-
-            window->draw(rang);
-        }
-
-        if (time(NULL) - resettime < points / 100 + 7) {
-            window->draw(finalPointsText);
-        } else {
-            position1 = view2.getCenter();
-
-            distanse = sqrt(
-                (position1.x - globalCenter.x) * (position1.x - globalCenter.x)
-                + (position1.y - globalCenter.y) * (position1.y - globalCenter.y));
-            if (distanse > 10) {
-                vd = globalCenter - position1;
-                angle = std::atan2(vd.y, vd.x) * 180.f / M_PI + 90;
-
-                angle -= (angle - 90) * 2;
-
-                view2.setCenter(
-                    position1.x + 20 * sin((angle)*M_PI / 180),
-                    position1.y + 20 * cos((angle)*M_PI / 180));
-
-                window->setView(view2);
-            } else {
-                ViewCenter.x = view2.getCenter().x;
-                ViewCenter.y = view2.getCenter().y;
-                view = view2;
-                window->setView(view);
-                banerAuthorSprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
-                banerPlaySprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
-                banerSettingsSprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
-                banerSprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (1920 * 1080)));
-                gameoverSprite.setPosition(view.getCenter().x, view.getCenter().y - 700);
-                select2 = false;
-                ShipSprite.setPosition(ViewCenter);
-                shipTexture.loadFromFile("Images/ship.png");
-                ShipSprite.setTexture(shipTexture);
-                ShipSprite.setRotation(0);
-                health = 100;
-                bulletsSize = 50;
-                laserShootCount = 0;
-                rocketsCount = 0;
-                shieldCount = 1;
-                points = 0;
-                freeze = false;
-
-                startposition = false;
-                k = 0;
-                finalpoints = 0;
-                finalexpl = false;
-                gameStarted = false;
-                GameOver = false;
-            }
-        }
-    }
-
-    window->draw(gameoverSprite);
 }
 void ship::draw()
 {
@@ -310,7 +185,6 @@ void ship::draw()
                 }
         } else {
             music.stop();
-            Gameover();
         }
 
         HPtext.setPosition(ViewCenter.x - screenX / 2 + 10, ViewCenter.y - screenY / 2);

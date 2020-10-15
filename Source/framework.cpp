@@ -14,7 +14,7 @@ framework::framework(
     int mapY)
 {
     this->godmode = godmode;
-    this->godmode = true;
+    // this->godmode = true;
     objects::setSettings(x, y, mapX, mapY, num_ammo, num_asteroids);
     ship::ShipSprite.setPosition(mainX / 2, mainY / 2);
     CSSpawn();
@@ -28,13 +28,28 @@ void framework::run()
                 window->close();
         }
 
-        if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+        if (Keyboard::isKeyPressed(Keyboard::F2)) {
             if (fullscreen) {
                 window->create(VideoMode(screenX, screenY), "Asteroids");
                 fullscreen = false;
                 window->setFramerateLimit(120);
                 window->setView(view);
                 window->setMouseCursorVisible(false);
+            }
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+            if (!pause) {
+                pause = true;
+                banerAuthorSprite.setPosition(
+                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+                banerPlaySprite.setPosition(
+                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+                banerSettingsSprite.setPosition(
+                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+                banerSprite.setPosition(
+                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (1920 * 1080)));
+                tapOnButton = false;
             }
         }
 
@@ -52,14 +67,17 @@ void framework::run()
         mousePosition = window->mapPixelToCoords(Mouse::getPosition(*window));
 
         window->draw(screenSprite);
-        ImprovementsBase::draw();
-        rockets::draw();
-        laser::draw();
-        asteroids::draw();
-        ship::draw();
-        clissans::draw();
-        CosmoStation::draw();
-        startMenu();
+        Menus::Gameover();
+        if (!pause) {
+            ImprovementsBase::draw();
+            rockets::draw();
+            laser::draw();
+            asteroids::draw();
+            ship::draw();
+            clissans::draw();
+            CosmoStation::draw();
+        }
+        Menus::startMenu();
         window->draw(cursorSprite);
 
         window->display();

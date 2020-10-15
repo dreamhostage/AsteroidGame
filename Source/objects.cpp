@@ -30,8 +30,7 @@ objects::objects()
     GameOver = false;
     godmode = false;
     gameStarted = false;
-    select = false;
-    resettime = 0;
+    selectButton = false;
 
     music.setLoop(true);
     music.setVolume(50);
@@ -125,64 +124,4 @@ void objects::setSettings(
 
     globalCenter.x = mainX / 2;
     globalCenter.y = mainY / 2;
-}
-void objects::startMenu()
-{
-    if (!gameStarted) {
-        if (!select2) {
-            if (banerSprite.getPosition().y
-                > ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080))) {
-                banerSprite.setPosition(
-                    banerSprite.getPosition().x, banerSprite.getPosition().y - 1);
-                window->draw(banerSprite);
-            } else {
-                position1 = window->mapPixelToCoords(Mouse::getPosition(*window));
-                if (position1.x > banerSprite.getPosition().x - 430
-                    && position1.x < banerSprite.getPosition().x - 180
-                    && position1.y > banerSprite.getPosition().y + 90
-                    && position1.y < banerSprite.getPosition().y + 160) {
-                    if (!select) {
-                        selectSound.play();
-                        select = true;
-                    }
-                    window->draw(banerSettingsSprite);
-                } else if (
-                    position1.x > banerSprite.getPosition().x - 70
-                    && position1.x < banerSprite.getPosition().x + 50
-                    && position1.y > banerSprite.getPosition().y + 120
-                    && position1.y < banerSprite.getPosition().y + 190) {
-                    if (!select) {
-                        selectSound.play();
-                        select = true;
-                    }
-                    window->draw(banerPlaySprite);
-                    if (Mouse::isButtonPressed(Mouse::Left)) {
-                        music.play();
-                        select2 = true;
-                    }
-                } else if (
-                    position1.x > banerSprite.getPosition().x + 180
-                    && position1.x < banerSprite.getPosition().x + 380
-                    && position1.y > banerSprite.getPosition().y + 100
-                    && position1.y < banerSprite.getPosition().y + 170) {
-                    if (!select) {
-                        selectSound.play();
-                        select = true;
-                    }
-                    window->draw(banerAuthorSprite);
-                } else {
-                    select = false;
-                    window->draw(banerSprite);
-                }
-            }
-        } else {
-            if (banerSprite.getPosition().y > ViewCenter.y - 750) {
-                banerSprite.setPosition(
-                    banerSprite.getPosition().x, banerSprite.getPosition().y - 10);
-                window->draw(banerSprite);
-            } else {
-                gameStarted = true;
-            }
-        }
-    }
 }
