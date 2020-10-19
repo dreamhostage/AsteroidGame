@@ -7,7 +7,11 @@ asteroids::asteroids()
     astExplTexture.loadFromFile("Images/asteroidexplosion.png");
     size = astExplTexture.getSize();
     astExplSprite.setTexture(astExplTexture);
+    astSpawningCount = 1;
+    destroyed = false;
+    distanseShip = 0;
 }
+
 void asteroids::add(Vector2f position, bool type, int speed, int rotation)
 {
     asteroidsArray new_ast;
@@ -28,6 +32,7 @@ void asteroids::add(Vector2f position, bool type, int speed, int rotation)
 
     ast.push_back(new_ast);
 }
+
 void asteroids::physic()
 {
     if (ast.size() > 1) {
@@ -52,6 +57,7 @@ void asteroids::physic()
         }
     }
 }
+
 bool asteroids::spawningChecking(Vector2f& first)
 {
     for (int i = 0; i < asteroids::ast.size(); ++i) {
@@ -65,6 +71,7 @@ bool asteroids::spawningChecking(Vector2f& first)
     }
     return true;
 }
+
 void asteroids::AsteroidSpawning()
 {
     if (AsteroidsSpawningTime.getElapsedTime().asSeconds() > 4) {
@@ -134,47 +141,39 @@ void asteroids::AsteroidSpawning()
         }
     }
 }
+
 void asteroids::draw()
 {
     if (gameStarted) {
+
         AsteroidSpawning();
         physic();
+
         Vector2f ship = ship::ShipSprite.getPosition();
-        std::vector<asteroidsArray>::iterator it;
-        std::vector<Sprite>::iterator bit;
 
         for (int i = 0; i < asteroids::ast.size(); ++i) {
             if (ast[i].explosion) {
                 if (ast[i].frame < 20) {
-                    if (!ast[i].type) {
-                        astExplSprite.setScale(2, 2);
-                    } else {
-                        astExplSprite.setScale(1, 1);
-                    }
-
-                    astExplSprite.setOrigin(25, 25);
-                    astExplSprite.setTextureRect(IntRect(int(ast[i].frame) * 50, 0, 50, 50));
-                    astExplSprite.setPosition(ast[i].sprite.getPosition());
-                    window->draw(astExplSprite);
-                    ast[i].frame += 0.2;
+                    asteroidExplosion(ast[i]);
                 } else {
                     it = ast.begin();
                     ast.erase(it + i);
                 }
             } else {
-                bool destroyed = false;
-                Vector2f temp = asteroids::ast[i].sprite.getPosition();
+                destroyed = false;
+                currentPosition = asteroids::ast[i].sprite.getPosition();
 
-                double distanseShip = sqrt(
-                    (ship.x - temp.x) * (ship.x - temp.x) + (ship.y - temp.y) * (ship.y - temp.y));
+                distanseShip = sqrt(
+                    (ship.x - currentPosition.x) * (ship.x - currentPosition.x)
+                    + (ship.y - currentPosition.y) * (ship.y - currentPosition.y));
 
-                if (temp.x < (mainX + 110) && temp.y < (mainY + 110) && temp.x > -110
-                    && temp.y > -110) {
+                if (currentPosition.x < (mainX + 110) && currentPosition.y < (mainY + 110)
+                    && currentPosition.x > -110 && currentPosition.y > -110) {
                     double angle = asteroids::ast[i].rotation;
                     angle -= (angle - 90) * 2;
                     asteroids::ast[i].sprite.setPosition(
-                        temp.x + asteroids::ast[i].speed * sin((angle)*M_PI / 180),
-                        temp.y + asteroids::ast[i].speed * cos((angle)*M_PI / 180));
+                        currentPosition.x + asteroids::ast[i].speed * sin((angle)*M_PI / 180),
+                        currentPosition.y + asteroids::ast[i].speed * cos((angle)*M_PI / 180));
                 } else {
                     it = ast.begin();
                     ast.erase(it + i);
@@ -183,140 +182,8 @@ void asteroids::draw()
 
                 if (gameStarted) {
                     if (!destroyed) {
-                        if (distanseShip < 50) {
-                            if (!asteroids::ast[i].type) {
-                                destroyed = true;
-                                ast[i].explosion = true;
-
-                                damage.play();
-
-                                if (!shieldCount) {
-                                    if (!godmode)
-                                        health -= 20;
-                                    if (health <= 0) {
-                                        health = 0;
-                                        GameOver = true;
-                                    }
-                                } else {
-                                    --shieldCount;
-                                    shieldSound.play();
-                                }
-                            } else if (distanseShip < 30) {
-                                destroyed = true;
-                                ast[i].explosion = true;
-
-                                damage.play();
-
-                                if (!shieldCount) {
-                                    if (!godmode)
-                                        health -= 10;
-                                    if (health <= 0) {
-                                        health = 0;
-                                        GameOver = true;
-                                    }
-                                } else {
-                                    --shieldCount;
-                                    shieldSound.play();
-                                }
-                            }
-                        }
-
-                        ///////////////////////////////////////////////////////////////////////////////////////
-
-                        for (int k = 0; k < bulletsArray.size(); ++k) {
-                            Vector2f bulletPosition = bulletsArray[k].getPosition();
-
-                            if (bulletPosition.x < mainX && bulletPosition.y < mainY
-                                && bulletPosition.x > 0 && bulletPosition.y > 0) {
-                                double distanseBullet = sqrt(
-                                    (bulletPosition.x - temp.x) * (bulletPosition.x - temp.x)
-                                    + (bulletPosition.y - temp.y) * (bulletPosition.y - temp.y));
-
-                                if (!asteroids::ast[i].type) {
-                                    if (distanseBullet < 50) {
-                                        destroyed = true;
-                                        ast[i].explosion = true;
-                                        destroying.play();
-
-                                        bit = bulletsArray.begin();
-                                        bulletsArray.erase(bit + k);
-
-                                        ++points;
-
-                                        temp.x -= 30;
-                                        int rotation = rand() % 360;
-
-                                        add(temp, 1, 2, rotation);
-
-                                        temp.x += 60;
-                                        add(temp, 1, 2, rotation + 100);
-
-                                        ///////////////////////////////////////////
-                                        int rnd = rand() % 3;
-
-                                        if (rnd == 1) {
-                                            Vector2f position = temp;
-
-                                            if ((mainX - position.x) < 50)
-                                                position.x -= 80;
-
-                                            if ((mainY - position.y) < 50)
-                                                position.y -= 80;
-
-                                            if (position.x < 50)
-                                                position.x = 80;
-
-                                            if (position.y < 50)
-                                                position.y = 80;
-
-                                            int rnd2 = rand() % 5;
-
-                                            if (bulletsSize < 2)
-                                                rnd2 = 3;
-
-                                            if (rnd2 == 0) {
-                                                ImprovementsBase::add(
-                                                    position, ImprovementsTypes::HPImprovement);
-                                            }
-
-                                            if (rnd2 == 1) {
-                                                ImprovementsBase::add(
-                                                    position,
-                                                    ImprovementsTypes::autoAimImprovement);
-                                            }
-                                            if (rnd2 == 2) {
-                                                ImprovementsBase::add(
-                                                    position,
-                                                    ImprovementsTypes::rocketsImprovement);
-                                            }
-                                            if (rnd2 == 3) {
-                                                ImprovementsBase::add(
-                                                    position, ImprovementsTypes::ammoImprovement);
-                                            }
-                                            if (rnd2 == 4) {
-                                                ImprovementsBase::add(
-                                                    position, ImprovementsTypes::shieldImprovement);
-                                            }
-                                        }
-                                        ///////////////////////////////////////////
-                                    }
-                                } else {
-                                    if (distanseBullet < 22) {
-                                        destroying.play();
-                                        bit = bulletsArray.begin();
-                                        bulletsArray.erase(bit + k);
-                                        ++points;
-                                        destroyed = true;
-                                        ast[i].explosion = true;
-                                    }
-                                }
-                            } else {
-                                std::vector<Sprite>::iterator bit = bulletsArray.begin();
-                                bulletsArray.erase(bit + k);
-                            }
-                        }
-
-                        ///////////////////////////////////////////////////////////////////////////////////////
+                        shipDistanceMonitoring(ast[i]);
+                        bulletsDistanceMonitoring(ast[i]);
                     }
                 }
 
@@ -324,10 +191,160 @@ void asteroids::draw()
                     window->draw(ast[i].sprite);
             }
         }
+    }
+}
+
+void asteroids::asteroidExplosion(asteroidsArray& asteroid)
+{
+    if (!asteroid.type) {
+        astExplSprite.setScale(2, 2);
     } else {
-        for (int i = 0; i < ast.size(); ++i) {
-            std::vector<asteroidsArray>::iterator it = ast.begin();
-            ast.erase(it);
+        astExplSprite.setScale(1, 1);
+    }
+
+    astExplSprite.setOrigin(25, 25);
+    astExplSprite.setTextureRect(IntRect(int(asteroid.frame) * 50, 0, 50, 50));
+    astExplSprite.setPosition(asteroid.sprite.getPosition());
+    window->draw(astExplSprite);
+    asteroid.frame += 0.2;
+}
+
+void asteroids::shipDistanceMonitoring(asteroidsArray& asteroid)
+{
+    if (distanseShip < 50) {
+        if (!asteroid.type) {
+            destroyed = true;
+            asteroid.explosion = true;
+
+            damage.play();
+
+            if (!shieldCount) {
+                if (!godmode)
+                    health -= 20;
+                if (health <= 0) {
+                    health = 0;
+                    GameOver = true;
+                }
+            } else {
+                --shieldCount;
+                shieldSound.play();
+            }
+        } else if (distanseShip < 30) {
+            destroyed = true;
+            asteroid.explosion = true;
+
+            damage.play();
+
+            if (!shieldCount) {
+                if (!godmode)
+                    health -= 10;
+                if (health <= 0) {
+                    health = 0;
+                    GameOver = true;
+                }
+            } else {
+                --shieldCount;
+                shieldSound.play();
+            }
         }
+    }
+}
+
+void asteroids::bulletsDistanceMonitoring(asteroidsArray& asteroid)
+{
+    for (int k = 0; k < bulletsArray.size(); ++k) {
+        Vector2f bulletPosition = bulletsArray[k].getPosition();
+
+        if (bulletPosition.x < mainX && bulletPosition.y < mainY && bulletPosition.x > 0
+            && bulletPosition.y > 0) {
+            double distanseBullet = sqrt(
+                (bulletPosition.x - currentPosition.x) * (bulletPosition.x - currentPosition.x)
+                + (bulletPosition.y - currentPosition.y) * (bulletPosition.y - currentPosition.y));
+
+            if (!asteroid.type) {
+                if (distanseBullet < 50) {
+                    destroyed = true;
+                    asteroid.explosion = true;
+                    destroying.play();
+
+                    bit = bulletsArray.begin();
+                    bulletsArray.erase(bit + k);
+
+                    ++points;
+
+                    generateImprovement(currentPosition);
+
+                    currentPosition.x -= 30;
+                    int rotation = rand() % 360;
+
+                    add(currentPosition, 1, 2, rotation);
+
+                    currentPosition.x += 60;
+                    add(currentPosition, 1, 2, rotation + 100);
+                }
+            } else {
+                if (distanseBullet < 22) {
+                    destroying.play();
+                    bit = bulletsArray.begin();
+                    bulletsArray.erase(bit + k);
+                    ++points;
+                    destroyed = true;
+                    asteroid.explosion = true;
+                }
+            }
+        } else {
+            std::vector<Sprite>::iterator bit = bulletsArray.begin();
+            bulletsArray.erase(bit + k);
+        }
+    }
+}
+
+void asteroids::generateImprovement(Vector2f& position)
+{
+    int rnd = rand() % 3;
+
+    if (rnd == 1) {
+
+        if ((mainX - position.x) < 50)
+            position.x -= 80;
+
+        if ((mainY - position.y) < 50)
+            position.y -= 80;
+
+        if (position.x < 50)
+            position.x = 80;
+
+        if (position.y < 50)
+            position.y = 80;
+
+        int rnd2 = rand() % 5;
+
+        if (bulletsSize < 2)
+            rnd2 = 3;
+
+        if (rnd2 == 0) {
+            ImprovementsBase::add(position, ImprovementsTypes::HPImprovement);
+        }
+
+        if (rnd2 == 1) {
+            ImprovementsBase::add(position, ImprovementsTypes::autoAimImprovement);
+        }
+        if (rnd2 == 2) {
+            ImprovementsBase::add(position, ImprovementsTypes::rocketsImprovement);
+        }
+        if (rnd2 == 3) {
+            ImprovementsBase::add(position, ImprovementsTypes::ammoImprovement);
+        }
+        if (rnd2 == 4) {
+            ImprovementsBase::add(position, ImprovementsTypes::shieldImprovement);
+        }
+    }
+}
+
+void asteroids::reset()
+{
+    auto ait = ast.begin();
+    while (ait != ast.end()) {
+        ait = ast.erase(ait);
     }
 }

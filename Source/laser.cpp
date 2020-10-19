@@ -4,6 +4,7 @@ laser::laser()
 {
     laserShootBuffer.loadFromFile("Sounds/Laser_Shoot.ogg");
     laserTexture.loadFromFile("Images/laser.png");
+    font.loadFromFile("Images/18949.ttf");
     laserSprite.setTexture(laserTexture);
     size = laserTexture.getSize();
     laserSprite.setOrigin(size.x / 2, size.y);
@@ -13,6 +14,7 @@ laser::laser()
     laserText.setFillColor(Color::Red);
     autoAimTime = 0;
 }
+
 void laser::draw()
 {
     if (gameStarted) {
@@ -32,7 +34,7 @@ void laser::draw()
                 if (distanse < 200) {
                     laserShootSound.play();
 
-                    if (autoAimTime < 4) {
+                    if (autoAimTime < 8) {
                         laserSprite.setPosition(position1);
                         vd = position1 - position2;
                         laserSprite.setRotation(std::atan2(vd.y, vd.x) * 180.f / M_PI + 270);

@@ -18,6 +18,9 @@ CosmoStation::CosmoStation()
     NBSoundBuffer.loadFromFile("Sounds/NBSound.ogg");
     NBSound.setBuffer(NBSoundBuffer);
 
+    NBexplosionBuffer.loadFromFile("Sounds/NBexplosion.ogg");
+    NBExplosionSound.setBuffer(NBexplosionBuffer);
+
     NeonBallTaleSprite.setScale(0.2, 0.2);
     size = NeonBallTaleTexture.getSize();
     NeonBallTaleSprite.setOrigin(size.x / 2, size.y / 2);
@@ -28,12 +31,12 @@ CosmoStation::CosmoStation()
 
     CosmoStationSprite.setScale(0.5, 0.5);
     LifeBarTexture.loadFromFile("Images/CosmoStationLife.png");
-    LifeBarSprite.setTexture(LifeBarTexture);
+    CSLifeBarSprite.setTexture(LifeBarTexture);
 
     size = CosmoStationTexture.getSize();
     CosmoStationSprite.setOrigin(size.x / 2, size.y / 2);
     size = LifeBarTexture.getSize();
-    LifeBarSprite.setOrigin(size.x / 2, size.y / 2);
+    CSLifeBarSprite.setOrigin(size.x / 2, size.y / 2);
 
     size = CSFrameTexture.getSize();
     CSFrameSprite.setOrigin(size.x / 2, size.y / 2);
@@ -46,7 +49,7 @@ CosmoStation::CosmoStation()
     freezeTime = 5;
     NBexplAnimframeX = 0;
     NBexplAnimframeY = 0;
-    alive = true;
+    CSalive = true;
     explSound = false;
     CSSelected = false;
     NeonBallAction = false;
@@ -54,9 +57,10 @@ CosmoStation::CosmoStation()
     NBtaleWait = false;
     NBexplActivate = false;
 }
+
 void CosmoStation::draw()
 {
-    if (alive) {
+    if (CSalive) {
         moving();
         LifeBar();
         BulletsChecking();
@@ -65,13 +69,14 @@ void CosmoStation::draw()
         Attack();
         NeonBallMoving();
         window->draw(CosmoStationSprite);
-        window->draw(LifeBarSprite);
+        window->draw(CSLifeBarSprite);
         if (CSSelected)
             window->draw(CSFrameSprite);
     } else {
         if (explSound) {
             explosionSound.play();
             explSound = false;
+            freeze = false;
         }
         static double k = 0;
         position1 = CosmoStationSprite.getPosition();
@@ -86,6 +91,7 @@ void CosmoStation::draw()
         }
     }
 }
+
 void CosmoStation::NeonBallMoving()
 {
     if (CSActivated) {
@@ -152,6 +158,7 @@ void CosmoStation::NeonBallMoving()
                     NBexplActivate = true;
                     NBtaleWait = true;
                     NeonBallLife = 5;
+                    NBExplosionSound.play();
                 }
 
                 if (NeonBallTale.size() > 140)
@@ -176,6 +183,7 @@ void CosmoStation::NeonBallMoving()
     }
     NBexplosion();
 }
+
 void CosmoStation::FrameMoving()
 {
     if (Keyboard::isKeyPressed(Keyboard::F))
@@ -204,11 +212,13 @@ void CosmoStation::FrameMoving()
         CSFrameSprite.setPosition(CosmoStationSprite.getPosition());
     }
 }
+
 void CosmoStation::LifeBar()
 {
-    LifeBarSprite.setPosition(
+    CSLifeBarSprite.setPosition(
         CosmoStationSprite.getPosition().x, CosmoStationSprite.getPosition().y - 130);
 }
+
 void CosmoStation::BulletsChecking()
 {
     position1 = CosmoStationSprite.getPosition();
@@ -224,11 +234,11 @@ void CosmoStation::BulletsChecking()
             bulletsArray.erase(bit + i);
             CSblaming = 7;
             CosmoStationSprite.setColor(Color::Red);
-            if (LifeBarSprite.getScale().x > 0.005) {
-                LifeBarSprite.setScale(
-                    LifeBarSprite.getScale().x - 0.005, LifeBarSprite.getScale().y);
+            if (CSLifeBarSprite.getScale().x > 0.005) {
+                CSLifeBarSprite.setScale(
+                    CSLifeBarSprite.getScale().x - 0.005, CSLifeBarSprite.getScale().y);
             } else {
-                alive = false;
+                CSalive = false;
                 explSound = true;
                 points += 400;
             }
@@ -240,6 +250,7 @@ void CosmoStation::BulletsChecking()
         CosmoStationSprite.setColor(CSCustomColor);
     }
 }
+
 void CosmoStation::moving()
 {
     if (CSActivated) {
@@ -263,6 +274,7 @@ void CosmoStation::moving()
         CSSpawn();
     }
 }
+
 void CosmoStation::laserScaning()
 {
     position1 = CosmoStationSprite.getPosition();
@@ -288,12 +300,14 @@ void CosmoStation::laserScaning()
         }
     }
 }
+
 void CosmoStation::addBullet(Vector2f& position, int rotation)
 {
     clissansbulletSprite.setPosition(position);
     clissansbulletSprite.setRotation(rotation);
     clissansbulletsArray.push_back(clissansbulletSprite);
 }
+
 void CosmoStation::Attack()
 {
     if (!GameOver) {
@@ -337,6 +351,7 @@ void CosmoStation::Attack()
         CSActivated = false;
     }
 }
+
 void CosmoStation::CSSpawn()
 {
     int rnd = rand() % 4;
@@ -354,6 +369,7 @@ void CosmoStation::CSSpawn()
         CosmoStationSprite.setPosition(rand() % mainX, -200);
     }
 }
+
 void CosmoStation::NBexplosion()
 {
     if (NBexplActivate) {
@@ -376,5 +392,25 @@ void CosmoStation::NBexplosion()
         }
 
         window->draw(NBexplSprite);
+    }
+}
+
+void CosmoStation::reset()
+{
+    CSLifeBarSprite.setScale(1, 1);
+    NBexplAnimframeX = 0;
+    NBexplAnimframeY = 0;
+    CSalive = true;
+    explSound = false;
+    CSSelected = false;
+    NeonBallAction = false;
+    CSActivated = true;
+    NBtaleWait = false;
+    NBexplActivate = false;
+    CSSpawn();
+
+    auto nbtit = NeonBallTale.begin();
+    while (nbtit != NeonBallTale.end()) {
+        nbtit = NeonBallTale.erase(nbtit);
     }
 }

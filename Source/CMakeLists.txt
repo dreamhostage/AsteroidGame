@@ -9,7 +9,7 @@ add_executable(RunGame
     main.cpp
     ship.cpp
     rockets.cpp
-    objects.cpp
+    GlobalVariables.cpp
     laser.cpp
     Improvements.cpp
     framework.cpp

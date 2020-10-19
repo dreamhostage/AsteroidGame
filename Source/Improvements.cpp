@@ -87,3 +87,11 @@ void ImprovementsBase::add(Vector2f& position, ImprovementsTypes type)
     temp.type = type;
     ImprovementsArray.push_back(std::move(temp));
 }
+
+void ImprovementsBase::reset()
+{
+    auto iit = ImprovementsArray.begin();
+    while (iit != ImprovementsArray.end()) {
+        iit = ImprovementsArray.erase(iit);
+    }
+}

@@ -9,7 +9,9 @@ clissans::clissans()
     laserinBuffer.loadFromFile("Sounds/laserin.ogg");
     clissansexplosionSoundBuffer.loadFromFile("Sounds/explosion.ogg");
     frameTexture.loadFromFile("Images/frame.png");
+    ClissanShipExplTexture.loadFromFile("Images/ClissanShipExpl.png");
 
+    ClissanShipExplSprite.setTexture(ClissanShipExplTexture);
     laserinSound.setBuffer(laserinBuffer);
     frameSprite.setTexture(frameTexture);
     ClissansLifeSprite.setTexture(ClissansLifeTexture);
@@ -20,6 +22,7 @@ clissans::clissans()
     clissanShipSprite.setRotation(90);
     size = ClissansLifeTexture.getSize();
     ClissansLifeSprite.setOrigin(size.x / 2, size.y / 2);
+    ClissanShipExplSprite.setOrigin(96, 96);
 
     size = clissanshipTexture.getSize();
     clissanShipSprite.setOrigin(size.x / 2, size.y / 2);
@@ -28,13 +31,18 @@ clissans::clissans()
     size = frameTexture.getSize();
     frameSprite.setOrigin(size.x / 2, size.y / 2);
 
+    ClissanShipCustomColor = clissanShipSprite.getColor();
+
     side = true;
     selNumb = -1;
     selectedCount = 0;
 
     mainX = VideoMode::getDesktopMode().width + 700;
     mainY = VideoMode::getDesktopMode().height + 700;
+
+    selectedClissansShip = NULL;
 }
+
 void clissans::clissansSpauning()
 {
     if (clisansShipsArray.size() < clisansCount) {
@@ -79,12 +87,14 @@ void clissans::clissansSpauning()
         }
     }
 }
+
 void clissans::addBullet(Vector2f& position, int rotation)
 {
     clissansbulletSprite.setPosition(position);
     clissansbulletSprite.setRotation(rotation);
     clissansbulletsArray.push_back(clissansbulletSprite);
 }
+
 void clissans::drawBullets()
 {
     position1 = ShipSprite.getPosition();
@@ -124,12 +134,13 @@ void clissans::drawBullets()
         }
     }
 }
-void clissans::makeShoot(int i)
+
+void clissans::makeShootIfClose(clissanShips& ClissansShip)
 {
     if (!GameOver) {
-        if (!clisansShipsArray[i].shoot) {
+        if (!ClissansShip.shoot) {
             position1 = ShipSprite.getPosition();
-            position2 = clisansShipsArray[i].sprite.getPosition();
+            position2 = ClissansShip.sprite.getPosition();
             distanse = sqrt(
                 (position2.x - position1.x) * (position2.x - position1.x)
                 + (position2.y - position1.y) * (position2.y - position1.y));
@@ -137,30 +148,24 @@ void clissans::makeShoot(int i)
                 clissansshot.play();
                 vd = position1 - position2;
                 addBullet(position2, std::atan2(vd.y, vd.x) * 180.f / M_PI + 90);
-                clisansShipsArray[i].shoot = true;
+                ClissansShip.shoot = true;
             }
         }
 
-        if (clisansShipsArray[i].shootingTime.getElapsedTime().asSeconds() > 2) {
-            clisansShipsArray[i].shootingTime.restart();
-            clisansShipsArray[i].shoot = false;
+        if (ClissansShip.shootingTime.getElapsedTime().asSeconds() > 2) {
+            ClissansShip.shootingTime.restart();
+            ClissansShip.shoot = false;
         }
     }
 }
+
 void clissans::draw()
 {
     if (gameStarted) {
         for (int i = 0; i < clisansShipsArray.size(); ++i) {
             if (clisansShipsArray[i].destroyed) {
                 if (clisansShipsArray[i].final < 65) {
-                    shipExplSprite.setScale(1, 1);
-
-                    shipExplSprite.setOrigin(96, 96);
-                    shipExplSprite.setTextureRect(
-                        IntRect(int(clisansShipsArray[i].final) * 192, 0, 192, 192));
-                    shipExplSprite.setPosition(clisansShipsArray[i].sprite.getPosition());
-                    window->draw(shipExplSprite);
-                    clisansShipsArray[i].final += 0.4;
+                    ClissanShipExplosion(clisansShipsArray[i]);
                 } else {
                     std::vector<clissanShips>::iterator csit = clisansShipsArray.begin();
                     clisansShipsArray.erase(csit + i);
@@ -168,20 +173,7 @@ void clissans::draw()
             } else {
                 if (Keyboard::isKeyPressed(Keyboard::F))
                     if (Mouse::isButtonPressed(Mouse::Left)) {
-                        position1 = clisansShipsArray[i].sprite.getPosition();
-                        pixelPos = Mouse::getPosition(*window);
-                        position2 = window->mapPixelToCoords(pixelPos);
-                        distanse = sqrt(
-                            (position1.x - position2.x) * (position1.x - position2.x)
-                            + (position1.y - position2.y) * (position1.y - position2.y));
-
-                        if (distanse < 70) {
-                            for (int k = 0; k < clisansShipsArray.size(); ++k)
-                                if (clisansShipsArray[k].selected)
-                                    clisansShipsArray[k].selected = false;
-                            clisansShipsArray[i].selected = true;
-                            aimSelected = true;
-                        }
+                        sellectClissanShip(clisansShipsArray[i]);
                     }
 
                 if (clisansShipsArray[i].selected) {
@@ -189,112 +181,9 @@ void clissans::draw()
                     window->draw(frameSprite);
                 }
 
-                temp = clisansShipsArray[i].sprite.getPosition();
-                position2 = ShipSprite.getPosition();
+                ClissanShipBulletsChecking(clisansShipsArray[i]);
 
-                for (int k = 0; k < bulletsArray.size(); ++k) {
-                    bulletPos = bulletsArray[k].getPosition();
-                    double bulletDist = sqrt(
-                        (bulletPos.x - temp.x) * (bulletPos.x - temp.x)
-                        + (bulletPos.y - temp.y) * (bulletPos.y - temp.y));
-                    if (bulletDist < 50) {
-                        clisansShipsArray[i].health -= 10;
-                        clisansShipsArray[i].LifeSprite.setScale(
-                            clisansShipsArray[i].LifeSprite.getScale().x - 0.1,
-                            clisansShipsArray[i].LifeSprite.getScale().y);
-                        std::vector<Sprite>::iterator bit = bulletsArray.begin();
-                        bulletsArray.erase(bit + k);
-                        laserinSound.play();
-                    }
-                }
-
-                if (clisansShipsArray[i].health <= 0) {
-                    explosionSound.play();
-                    clisansShipsArray[i].destroyed = true;
-                    if (clisansShipsArray[i].selected) {
-                        clisansShipsArray[i].selected = false;
-                        aimSelected = false;
-                    }
-                    selNumb = -1;
-                    points += 10;
-                }
-
-                if (temp.x < 0) {
-                    temp.x = mainX;
-                    clisansShipsArray[i].sprite.setPosition(temp);
-                }
-                if (temp.y < 0) {
-                    temp.y = mainY;
-                    clisansShipsArray[i].sprite.setPosition(temp);
-                }
-                if (temp.x > mainX) {
-                    temp.x = 0;
-                    clisansShipsArray[i].sprite.setPosition(temp);
-                }
-                if (temp.y > mainY) {
-                    temp.y = 0;
-                    clisansShipsArray[i].sprite.setPosition(temp);
-                }
-
-                double distanse = sqrt(
-                    (clisansShipsArray[i].pos.x - temp.x) * (clisansShipsArray[i].pos.x - temp.x)
-                    + (clisansShipsArray[i].pos.y - temp.y)
-                        * (clisansShipsArray[i].pos.y - temp.y));
-                double shipDistanse = sqrt(
-                    (position2.x - temp.x) * (position2.x - temp.x)
-                    + (position2.y - temp.y) * (position2.y - temp.y));
-                int angle = 0;
-                float current = 0;
-
-                makeShoot(i);
-
-                if (distanse > 200) {
-                    if (shipDistanse < clissansSpawningDistance) {
-                        vd = position2 - temp;
-                        angle = std::atan2(vd.y, vd.x) * 180 / M_PI + 170;
-
-                        current = clisansShipsArray[i].sprite.getRotation();
-                        if (current < angle)
-                            ++current;
-                        else if (current > angle)
-                            --current;
-                        else
-                            current = angle;
-                    } else {
-                        vd = clisansShipsArray[i].pos - temp;
-                        angle = std::atan2(vd.y, vd.x) * 180 / M_PI + 90;
-
-                        if (angle > 360)
-                            angle = 360 - angle;
-                        else if (angle < 0)
-                            angle = 360 + angle;
-
-                        current = clisansShipsArray[i].sprite.getRotation();
-                        if (current < angle)
-                            ++current;
-                        else if (current > angle)
-                            --current;
-                        else
-                            current = angle;
-                    }
-                } else {
-                    clisansShipsArray[i].pos.x = rand() % mainX;
-                    clisansShipsArray[i].pos.y = rand() % mainY;
-                    if (clisansShipsArray[i].pos.x < 200)
-                        clisansShipsArray[i].pos.x = 200;
-                    if (clisansShipsArray[i].pos.x > mainX - 200)
-                        clisansShipsArray[i].pos.x = mainX - 200;
-
-                    if (clisansShipsArray[i].pos.y < 200)
-                        clisansShipsArray[i].pos.y = 200;
-                    if (clisansShipsArray[i].pos.y > mainX - 200)
-                        clisansShipsArray[i].pos.y = mainX - 200;
-                }
-
-                clisansShipsArray[i].sprite.setRotation(current);
-                current -= (current - 90) * 2;
-                clisansShipsArray[i].sprite.setPosition(
-                    temp.x + 2 * sin((current)*M_PI / 180), temp.y + 2 * cos((current)*M_PI / 180));
+                ClissanShipMovingBehavior(clisansShipsArray[i]);
 
                 window->draw(clisansShipsArray[i].sprite);
                 clisansShipsArray[i].LifeSprite.setPosition(
@@ -310,5 +199,169 @@ void clissans::draw()
             std::vector<clissanShips>::iterator it = clisansShipsArray.begin();
             clisansShipsArray.erase(it);
         }
+    }
+}
+
+void clissans::ClissanShipExplosion(clissanShips& ClissansShip)
+{
+    ClissanShipExplSprite.setTextureRect(IntRect(int(ClissansShip.final) * 192, 0, 192, 192));
+    ClissanShipExplSprite.setPosition(ClissansShip.sprite.getPosition());
+    window->draw(ClissanShipExplSprite);
+    ClissansShip.final += 0.4;
+}
+
+void clissans::sellectClissanShip(clissanShips& ClissansShip)
+{
+    position1 = ClissansShip.sprite.getPosition();
+    pixelPos = Mouse::getPosition(*window);
+    position2 = window->mapPixelToCoords(pixelPos);
+    distanse = sqrt(
+        (position1.x - position2.x) * (position1.x - position2.x)
+        + (position1.y - position2.y) * (position1.y - position2.y));
+
+    if (!aimSelected) {
+        if (distanse < 70) {
+            if (selectedClissansShip)
+                selectedClissansShip->selected = false;
+            selectedClissansShip = &ClissansShip;
+            ClissansShip.selected = true;
+            aimSelected = true;
+        } else {
+            if (selectedClissansShip)
+                selectedClissansShip->selected = false;
+        }
+    } else {
+        if (distanse > 70) {
+            if (ClissansShip.selected) {
+                ClissansShip.selected = false;
+                aimSelected = false;
+            }
+        }
+    }
+}
+
+void clissans::ClissanShipBulletsChecking(clissanShips& ClissansShip)
+{
+    temp = ClissansShip.sprite.getPosition();
+    position2 = ShipSprite.getPosition();
+
+    for (int k = 0; k < bulletsArray.size(); ++k) {
+        bulletPos = bulletsArray[k].getPosition();
+        double bulletDist = sqrt(
+            (bulletPos.x - temp.x) * (bulletPos.x - temp.x)
+            + (bulletPos.y - temp.y) * (bulletPos.y - temp.y));
+        if (bulletDist < 50) {
+            ClissansShip.health -= 10;
+            ClissansShip.LifeSprite.setScale(
+                ClissansShip.LifeSprite.getScale().x - 0.1, ClissansShip.LifeSprite.getScale().y);
+            std::vector<Sprite>::iterator bit = bulletsArray.begin();
+            bulletsArray.erase(bit + k);
+            laserinSound.play();
+            ClissansShip.ClissanShipBlaming = 7;
+            ClissansShip.sprite.setColor(Color::Red);
+        }
+    }
+
+    if (ClissansShip.ClissanShipBlaming) {
+        --ClissansShip.ClissanShipBlaming;
+    } else {
+        ClissansShip.sprite.setColor(ClissanShipCustomColor);
+    }
+
+    if (ClissansShip.health <= 0) {
+        explosionSound.play();
+        ClissansShip.destroyed = true;
+        if (ClissansShip.selected) {
+            ClissansShip.selected = false;
+            aimSelected = false;
+        }
+        points += 10;
+    }
+}
+
+void clissans::ClissanShipMovingBehavior(clissanShips& ClissansShip)
+{
+    if (temp.x < 0) {
+        temp.x = mainX;
+        ClissansShip.sprite.setPosition(temp);
+    }
+    if (temp.y < 0) {
+        temp.y = mainY;
+        ClissansShip.sprite.setPosition(temp);
+    }
+    if (temp.x > mainX) {
+        temp.x = 0;
+        ClissansShip.sprite.setPosition(temp);
+    }
+    if (temp.y > mainY) {
+        temp.y = 0;
+        ClissansShip.sprite.setPosition(temp);
+    }
+
+    double distanse = sqrt(
+        (ClissansShip.pos.x - temp.x) * (ClissansShip.pos.x - temp.x)
+        + (ClissansShip.pos.y - temp.y) * (ClissansShip.pos.y - temp.y));
+    double shipDistanse = sqrt(
+        (position2.x - temp.x) * (position2.x - temp.x)
+        + (position2.y - temp.y) * (position2.y - temp.y));
+    int angle = 0;
+    float current = 0;
+
+    makeShootIfClose(ClissansShip);
+
+    if (distanse > 200) {
+        if (shipDistanse < clissansSpawningDistance) {
+            vd = position2 - temp;
+            angle = std::atan2(vd.y, vd.x) * 180 / M_PI + 170;
+
+            current = ClissansShip.sprite.getRotation();
+            if (current < angle)
+                ++current;
+            else if (current > angle)
+                --current;
+            else
+                current = angle;
+        } else {
+            vd = ClissansShip.pos - temp;
+            angle = std::atan2(vd.y, vd.x) * 180 / M_PI + 90;
+
+            if (angle > 360)
+                angle = 360 - angle;
+            else if (angle < 0)
+                angle = 360 + angle;
+
+            current = ClissansShip.sprite.getRotation();
+            if (current < angle)
+                ++current;
+            else if (current > angle)
+                --current;
+            else
+                current = angle;
+        }
+    } else {
+        ClissansShip.pos.x = rand() % mainX;
+        ClissansShip.pos.y = rand() % mainY;
+        if (ClissansShip.pos.x < 200)
+            ClissansShip.pos.x = 200;
+        if (ClissansShip.pos.x > mainX - 200)
+            ClissansShip.pos.x = mainX - 200;
+
+        if (ClissansShip.pos.y < 200)
+            ClissansShip.pos.y = 200;
+        if (ClissansShip.pos.y > mainX - 200)
+            ClissansShip.pos.y = mainX - 200;
+    }
+
+    ClissansShip.sprite.setRotation(current);
+    current -= (current - 90) * 2;
+    ClissansShip.sprite.setPosition(
+        temp.x + 2 * sin((current)*M_PI / 180), temp.y + 2 * cos((current)*M_PI / 180));
+}
+
+void clissans::reset()
+{
+    auto cit = clisansShipsArray.begin();
+    while (cit != clisansShipsArray.end()) {
+        cit = clisansShipsArray.erase(cit);
     }
 }
