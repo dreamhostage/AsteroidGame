@@ -121,6 +121,7 @@ void ship::draw()
                     ShipSprite.rotate(shipRotation);
                 if (Keyboard::isKeyPressed(Keyboard::W)) {
                     moveShip();
+                    smoke.add(ShipSprite);
                 }
             }
             if (!Keyboard::isKeyPressed(Keyboard::F))
@@ -136,6 +137,7 @@ void ship::draw()
             window->draw(HPtext);
             window->draw(bulletsSizeText);
             window->draw(pointsText);
+            smoke.draw(*window);
             drawBullets();
         }
     }

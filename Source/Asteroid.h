@@ -1,4 +1,6 @@
 #pragma once
+#include "particle.h"
+
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -54,6 +56,7 @@ class ship : public GlobalVariables {
     void moveShip();
     void makeShoot();
     void shipPerformance();
+    particle smoke;
 
 public:
     Texture shipTexture;

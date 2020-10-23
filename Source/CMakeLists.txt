@@ -16,7 +16,8 @@ add_executable(RunGame
     CosmoStation.cpp
     clissans.cpp
     asteroids.cpp
-    menus.cpp)
+    menus.cpp
+    particle.cpp)
 
 
 target_link_libraries(RunGame ${CMAKE_SOURCE_DIR}/libs/libsfml-audio.so.2.4)
