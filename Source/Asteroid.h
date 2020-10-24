@@ -1,5 +1,4 @@
 #pragma once
-#include "particle.h"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -49,14 +48,45 @@ public:
     void reset();
 };
 
-class ship : public GlobalVariables {
+class smoke : public GlobalVariables {
+
+    Texture particleTexture;
+    Sprite particleSprite;
+    Vector2f position;
+    float angle;
+    Vector2f np;
+
+public:
+    struct particle {
+
+        Sprite sprite;
+        int lifetime = 1000;
+        int speed = 2;
+        Clock time;
+        Vector2f position;
+        float angle;
+        Color color;
+        double f;
+
+        particle(Sprite _sprite, float _angle, Vector2f _position);
+        void move();
+        double rnd(double fMin, double fMax);
+    };
+
+    void add(Sprite sprite);
+    void draw(RenderWindow& window);
+    smoke();
+
+    std::vector<particle> pbase;
+};
+
+class ship : public smoke {
 
     void addBullet(Vector2f& position, int rotation);
     void drawBullets();
     void moveShip();
     void makeShoot();
     void shipPerformance();
-    particle smoke;
 
 public:
     Texture shipTexture;
@@ -91,6 +121,7 @@ public:
     Text finalPointsText;
     Text rang;
     Clock ShootingTime;
+    Clock ShootingTimeNoBullets;
     Clock shipExplTime;
     Font font;
     int health;

@@ -88,6 +88,8 @@ ship::ship()
     shipRotation = 3;
     shipSpeed = 3;
     bulletSpeed = 10;
+
+    // ShipSmoke.setTexture("Images/particle.png");
 }
 
 void ship::addBullet(Vector2f& position, int rotation)
@@ -121,7 +123,7 @@ void ship::draw()
                     ShipSprite.rotate(shipRotation);
                 if (Keyboard::isKeyPressed(Keyboard::W)) {
                     moveShip();
-                    smoke.add(ShipSprite);
+                    smoke::add(ShipSprite);
                 }
             }
             if (!Keyboard::isKeyPressed(Keyboard::F))
@@ -137,7 +139,6 @@ void ship::draw()
             window->draw(HPtext);
             window->draw(bulletsSizeText);
             window->draw(pointsText);
-            smoke.draw(*window);
             drawBullets();
         }
     }
@@ -192,9 +193,8 @@ void ship::moveShip()
 
 void ship::makeShoot()
 {
-    struct timeval ts;
-    if (ShootingTime.getElapsedTime().asMilliseconds() > 120) {
-        if (bulletsSize) {
+    if (bulletsSize) {
+        if (ShootingTime.getElapsedTime().asMilliseconds() > 120) {
             if (!godmode)
                 --bulletsSize;
             shot.play();
@@ -204,15 +204,16 @@ void ship::makeShoot()
             vd = mousePosition - position1;
             addBullet(position1, std::atan2(vd.y, vd.x) * 180.f / M_PI + 90);
             ShootingTime.restart();
-        } else {
-            if (!bulletsArray.size()) {
-                shot.play();
-                pixelPos = Mouse::getPosition(*window);
-                position1 = ShipSprite.getPosition();
-                mousePosition = window->mapPixelToCoords(pixelPos);
-                vd = mousePosition - position1;
-                addBullet(position1, std::atan2(vd.y, vd.x) * 180.f / M_PI + 90);
-            }
+        }
+    } else {
+        if (ShootingTimeNoBullets.getElapsedTime().asSeconds() > 1) {
+            shot.play();
+            pixelPos = Mouse::getPosition(*window);
+            position1 = ShipSprite.getPosition();
+            mousePosition = window->mapPixelToCoords(pixelPos);
+            vd = mousePosition - position1;
+            addBullet(position1, std::atan2(vd.y, vd.x) * 180.f / M_PI + 90);
+            ShootingTimeNoBullets.restart();
         }
     }
 }

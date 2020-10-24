@@ -56,7 +56,6 @@ void clissans::clissansSpauning()
             new_cship.LifeSprite = ClissansLifeSprite;
             new_cship.pos.x = rand() % mainX;
             new_cship.pos.y = rand() % mainY;
-            clisansShipsArray.push_back(new_cship);
         }
 
         if (rnd == 1) {
@@ -65,7 +64,6 @@ void clissans::clissansSpauning()
             new_cship.LifeSprite = ClissansLifeSprite;
             new_cship.pos.x = rand() % mainX;
             new_cship.pos.y = rand() % mainY;
-            clisansShipsArray.push_back(new_cship);
         }
 
         if (rnd == 2) {
@@ -74,7 +72,6 @@ void clissans::clissansSpauning()
             new_cship.LifeSprite = ClissansLifeSprite;
             new_cship.pos.x = rand() % mainX;
             new_cship.pos.y = rand() % mainY;
-            clisansShipsArray.push_back(new_cship);
         }
 
         if (rnd == 3) {
@@ -83,8 +80,9 @@ void clissans::clissansSpauning()
             new_cship.LifeSprite = ClissansLifeSprite;
             new_cship.pos.x = rand() % mainX;
             new_cship.pos.y = rand() % mainY;
-            clisansShipsArray.push_back(new_cship);
         }
+
+        clisansShipsArray.push_back(std::move(new_cship));
     }
 }
 
@@ -180,6 +178,8 @@ void clissans::draw()
                     frameSprite.setPosition(clisansShipsArray[i].sprite.getPosition());
                     window->draw(frameSprite);
                 }
+
+                smoke::add(clisansShipsArray[i].sprite);
 
                 ClissanShipBulletsChecking(clisansShipsArray[i]);
 

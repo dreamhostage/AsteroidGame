@@ -105,7 +105,7 @@ void framework::setSettings(
     globalCenter.y = mainY / 2;
 
     this->godmode = godmode;
-    this->godmode = true;
+    // this->godmode = true;
     ship::ShipSprite.setPosition(mainX / 2, mainY / 2);
 
     CSSpawn();
@@ -283,6 +283,7 @@ void framework::run()
             ship::draw();
             clissans::draw();
             CosmoStation::draw();
+            smoke::draw(*window);
             Gameover();
         }
         Menus::startMenu();
