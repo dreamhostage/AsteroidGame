@@ -36,6 +36,7 @@ void rockets::draw()
             }
         } else {
             window->draw(rocketSprite);
+            smoke::add(rocketSprite);
             if (!aimSelected && !CSSelected) {
                 AimNearestAsteroid();
             } else if (aimSelected) {
