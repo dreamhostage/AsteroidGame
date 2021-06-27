@@ -1,3 +1,4 @@
 Source/CMakeLists.txt.user
 build/
+.vs/
 RunGame
