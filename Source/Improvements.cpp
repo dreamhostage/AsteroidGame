@@ -46,8 +46,13 @@ void ImprovementsBase::draw()
                 } else if (ImprovementsArray[i].type == ImprovementsTypes::HPImprovement) {
                     if (health < 100) {
                         health += 50;
+                        LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x + (screenX * 0.5), LifeBar.getSize().y));
+                        LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
                         if (health > 100)
+                        {
                             health = 100;
+                            ship::LifeBar.setSize(sf::Vector2f(screenX - 50, 10));
+                        }
                     }
                 } else if (ImprovementsArray[i].type == ImprovementsTypes::shieldImprovement) {
                     shieldCount += 3;

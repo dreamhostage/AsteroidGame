@@ -10,6 +10,7 @@ asteroids::asteroids()
     astSpawningCount = 1;
     destroyed = false;
     distanseShip = 0;
+    isAsteroidsPassive = false;
 }
 
 void asteroids::add(Vector2f position, bool type, int speed, int rotation)
@@ -53,7 +54,6 @@ void asteroids::physic()
                     std::swap(ast[i].speed, ast[k].speed);
                 }
             }
-            asteroids::ast[i].sprite.rotate(asteroids::ast[i].speed);
         }
     }
 }
@@ -145,9 +145,11 @@ void asteroids::AsteroidSpawning()
 void asteroids::draw()
 {
     if (gameStarted) {
-
-        AsteroidSpawning();
-        physic();
+        if (!tunnelActivated)
+        {
+            AsteroidSpawning();
+            physic();
+        }
 
         Vector2f ship = ship::ShipSprite.getPosition();
 
@@ -188,7 +190,39 @@ void asteroids::draw()
                 }
 
                 if (!destroyed)
+                {
+                    asteroids::ast[i].sprite.rotate(asteroids::ast[i].speed);
                     window->draw(ast[i].sprite);
+                }
+            }
+        }
+        if (tunnelActivated)
+        {
+            if (!isAsteroidsPassive)
+            {
+                position2 = tunnel::portalCircle.getPosition();
+                for (int i = 0; i < ast.size(); ++i)
+                {
+                    position1 = ast[i].sprite.getPosition();
+                    vd = position2 - position1;
+                    angle = std::atan2(vd.y, vd.x) * 180.f / M_PI + 90;
+                    ast[i].rotation = angle;
+                    ast[i].speed = 1;
+                }
+                isAsteroidsPassive = true;
+            }
+            position2 = tunnel::portalCircle.getPosition();
+            for (int i = 0; i < ast.size(); ++i)
+            {
+                position1 = ast[i].sprite.getPosition();
+                distanse = sqrt(
+                    (position1.x - position2.x) * (position1.x - position2.x)
+                    + (position1.y - position2.y) * (position1.y - position2.y));
+                if (distanse < 60)
+                {
+                    deleteAstIterator = ast.begin();
+                    ast.erase(deleteAstIterator + i);
+                }
             }
         }
     }
@@ -220,9 +254,14 @@ void asteroids::shipDistanceMonitoring(asteroidsArray& asteroid)
 
             if (!shieldCount) {
                 if (!godmode)
+                {
                     health -= 20;
+                    LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x - (screenX * 0.2), LifeBar.getSize().y));
+                    LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
+                }
                 if (health <= 0) {
                     health = 0;
+                    LifeBar.setSize(sf::Vector2f(0, 0));
                     GameOver = true;
                 }
             } else {
@@ -237,9 +276,14 @@ void asteroids::shipDistanceMonitoring(asteroidsArray& asteroid)
 
             if (!shieldCount) {
                 if (!godmode)
+                {
                     health -= 10;
+                    LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x - (screenX * 0.1), LifeBar.getSize().y));
+                    LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
+                }
                 if (health <= 0) {
                     health = 0;
+                    LifeBar.setSize(sf::Vector2f(0, 0));
                     GameOver = true;
                 }
             } else {
@@ -344,6 +388,7 @@ void asteroids::generateImprovement(Vector2f& position)
 void asteroids::reset()
 {
     auto ait = ast.begin();
+    isAsteroidsPassive = false;
     while (ait != ast.end()) {
         ait = ast.erase(ait);
     }

@@ -15,6 +15,18 @@ ship::ship()
     destroyingBuffer.loadFromFile("Sounds/destroying.ogg");
     damageBuffer.loadFromFile("Sounds/damage.ogg");
     font.loadFromFile("Images/18949.ttf");
+    ammoTexture.loadFromFile("Images/ammo.png");
+    shieldCountTexture.loadFromFile("Images/shield.png");
+
+    shieldCountSprite.setTexture(shieldCountTexture);
+    size = shieldCountTexture.getSize();
+    shieldCountSprite.setOrigin(size.x / 2, size.y / 2);
+    shieldCountSprite.setScale(0.45, 0.45);
+
+    ammoSprite.setTexture(ammoTexture);
+    size = ammoTexture.getSize();
+    ammoSprite.setOrigin(size.x / 2, size.y / 2);
+    ammoSprite.setScale(0.6, 0.6);
 
     damage.setBuffer(damageBuffer);
     destroying.setBuffer(destroyingBuffer);
@@ -57,12 +69,6 @@ ship::ship()
     bulletsSizeText.setFillColor(sf::Color::White);
     bulletsSizeText.setPosition(10, 50);
 
-    HPtext.setFont(font);
-    HPtext.setCharacterSize(40);
-    HPtext.setFillColor(sf::Color::White);
-    HPtext.setString("HP: 100");
-    HPtext.setPosition(10, 0);
-
     pointsText.setFont(font);
     pointsText.setCharacterSize(40);
     pointsText.setFillColor(sf::Color::White);
@@ -84,12 +90,11 @@ ship::ship()
     aimSelected = false;
     startposition = false;
     freeze = false;
+    isInsideTunnel = false;
 
     shipRotation = 3;
     shipSpeed = 3;
     bulletSpeed = 10;
-
-    // ShipSmoke.setTexture("Images/particle.png");
 }
 
 void ship::addBullet(Vector2f& position, int rotation)
@@ -122,8 +127,11 @@ void ship::draw()
                 if (Keyboard::isKeyPressed(Keyboard::D))
                     ShipSprite.rotate(shipRotation);
                 if (Keyboard::isKeyPressed(Keyboard::W)) {
-                    moveShip();
-                    smoke::add(ShipSprite);
+                    if (!isInsideTunnel)
+                    {
+                        moveShip();
+                        smoke::add(ShipSprite);
+                    }
                 }
             }
             if (!Keyboard::isKeyPressed(Keyboard::F))
@@ -136,11 +144,13 @@ void ship::draw()
 
         if (gameStarted) {
             window->draw(ShipSprite);
-            window->draw(HPtext);
             window->draw(bulletsSizeText);
             window->draw(pointsText);
+            window->draw(LifeBar);
+            window->draw(ammoSprite);
             drawBullets();
         }
+        tunnelEngine();
     }
 }
 
@@ -220,35 +230,36 @@ void ship::makeShoot()
 
 void ship::shipPerformance()
 {
-    HPtext.setPosition(ViewCenter.x - screenX / 2 + 10, ViewCenter.y - screenY / 2);
-    bulletsSizeText.setPosition(ViewCenter.x - screenX / 2 + 10, ViewCenter.y - screenY / 2 + 50);
-    pointsText.setPosition(ViewCenter.x - screenX / 2 + 10, ViewCenter.y - screenY / 2 + 100);
+    bulletsSizeText.setPosition(ViewCenter.x - screenX / 2 + 50, ViewCenter.y - ammoTexture.getSize().y / 3);
+    pointsText.setPosition(ViewCenter.x, ViewCenter.y - screenY / 2 + 10);
+    ammoSprite.setPosition(ViewCenter.x - screenX / 2 + ammoTexture.getSize().x / 2, ViewCenter.y);
 
-    text = "BULLETS: ";
-    text += std::to_string(bulletsSize);
-    bulletsSizeText.setString(text);
+    bulletsSizeText.setString(std::to_string(bulletsSize));
 
-    text = "POINTS: ";
-    text += std::to_string(points);
-    pointsText.setString(text);
+    pointsText.setString(std::to_string(points));
 
-    text = "HP: ";
-    text += std::to_string(health);
-    HPtext.setString(text);
     if (health <= 30)
-        HPtext.setFillColor(Color::Red);
+    {
+        ship::LifeBar.setFillColor(sf::Color(121, 0, 0, 180));
+    }
     else
-        HPtext.setFillColor(Color::White);
+    {
+        ship::LifeBar.setFillColor(sf::Color(0, 121, 0, 180));
+    }
 
     if (shieldCount) {
-        text = "SHIELD: ";
-        text += std::to_string(shieldCount);
-        shieldText.setString(text);
-        shieldText.setPosition(ViewCenter.x - screenX / 2 + 300, ViewCenter.y - screenY / 2 + 100);
+        shieldText.setString(std::to_string(shieldCount));
+
+        shieldText.setPosition(ViewCenter.x - screenX / 2 + shieldCountTexture.getSize().x / 2, ViewCenter.y - shieldCountTexture.getSize().y + 2);
+        shieldCountSprite.setPosition(ViewCenter.x - screenX / 2 + shieldCountTexture.getSize().x / 3 - 5, ViewCenter.y - shieldCountTexture.getSize().y / 2 - 15);
+
         shieldResistSprite.setPosition(ShipSprite.getPosition());
         window->draw(shieldResistSprite);
         window->draw(shieldText);
+        window->draw(shieldCountSprite);
     }
+
+    LifeBar.setPosition(view.getCenter().x, view.getCenter().y - (screenY / 2) + 10);
 }
 
 void ship::reset()
@@ -257,6 +268,8 @@ void ship::reset()
     shipTexture.loadFromFile("Images/ship.png");
     ShipSprite.setTexture(shipTexture);
     ShipSprite.setRotation(0);
+    ship::LifeBar.setSize(sf::Vector2f(screenX - 50, 10));
+    ship::LifeBar.setOrigin((screenX - 50) / 2, 5);
     health = 100;
     bulletsSize = 50;
     laserShootCount = 0;
@@ -268,4 +281,30 @@ void ship::reset()
     startposition = false;
     finalpoints = 0;
     finalexpl = false;
+}
+
+void ship::tunnelEngine()
+{
+    if (tunnelActivated)
+    {
+        position1 = ShipSprite.getPosition();
+        position2 = portalCircle.getPosition();
+        distanse = sqrt(
+            (position1.x - position2.x) * (position1.x - position2.x)
+            + (position1.y - position2.y) * (position1.y - position2.y));
+
+        if (portalSize > 190)
+        {
+            if (distanse < 170)
+            {
+                if (portalSize < screenX + 200)
+                {
+                    portalSize += 0.7;
+                    portalCircle.setRadius(portalSize + 20);
+                    portalCircle.setOrigin(portalCircle.getRadius(), portalCircle.getRadius());
+                }
+                isInsideTunnel = true;
+            }
+        }
+    }
 }

@@ -73,25 +73,21 @@ void framework::setSettings(
     screenSprite.setScale(
         mainX / screenSprite.getLocalBounds().width, mainY / screenSprite.getLocalBounds().height);
 
-    // banerSprite.setScale((double)(screenX / 1920), (double)(screenY / 1080));
     size = banerTexture.getSize();
     banerSprite.setOrigin(size.x / 2, size.y / 2);
     banerSprite.setPosition(
         ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (1920 * 1080)));
 
-    // banerSettingsSprite.setScale((double)(screenX / 1920), (double)(screenY / 1080));
     banerSettingsTexture.getSize();
     banerSettingsSprite.setOrigin(size.x / 2, size.y / 2);
     banerSettingsSprite.setPosition(
         ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
 
-    // banerPlaySprite.setScale((double)(screenX / 1920), (double)(screenY / 1080));
     banerPlayTexture.getSize();
     banerPlaySprite.setOrigin(size.x / 2, size.y / 2);
     banerPlaySprite.setPosition(
         ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
 
-    // banerAuthorSprite.setScale((double)(screenX / 1920), (double)(screenY / 1080));
     banerAuthorTexture.getSize();
     banerAuthorSprite.setOrigin(size.x / 2, size.y / 2);
     banerAuthorSprite.setPosition(
@@ -100,6 +96,10 @@ void framework::setSettings(
     size = gameoverTexture.getSize();
     gameoverSprite.setOrigin(size.x / 2, size.y / 2);
     gameoverSprite.setPosition(view.getCenter().x, view.getCenter().y - 700);
+
+    ship::LifeBar.setSize(sf::Vector2f(screenX - 50, 10));
+    ship::LifeBar.setOrigin((screenX - 50) / 2, 5);
+    ship::LifeBar.setFillColor(sf::Color(0, 121, 0, 180));
 
     globalCenter.x = mainX / 2;
     globalCenter.y = mainY / 2;
@@ -120,6 +120,7 @@ void framework::ResetGame()
     GlobalVariables::reset();
     clissans::reset();
     asteroids::reset();
+    tunnel::reset();
 
     music.stop();
 }
@@ -286,8 +287,34 @@ void framework::run()
             smoke::draw(*window);
             Gameover();
         }
+        if (tunnelActivated)
+        {
+            tunnel::draw();
+        }
         Menus::startMenu();
-        window->draw(cursorSprite);
+        if (!isInsideTunnel)
+        {
+            window->draw(cursorSprite);
+        }
+        else
+        {
+            if (portalSize > screenX / 2)
+            {
+                spawningPosition = window->mapPixelToCoords(Mouse::getPosition(*window));
+                pixelCount = 7000;
+                pixelspeed = 17;
+                centerSize = 150;
+
+                while (pixels.size() < pixelCount)
+                {
+                    arbiteAngle = rand() % 360;
+                    newPixelPos.x = spawningPosition.x + (portalSize * 2) * cos((arbiteAngle)*M_PI / 180);
+                    newPixelPos.y = spawningPosition.y + (portalSize * 2) * sin((arbiteAngle)*M_PI / 180);
+                    pixelSprite.setPosition(newPixelPos);
+                    pixels.push_back(pixelSprite);
+                }
+            }
+        }
 
         window->display();
         window->clear();

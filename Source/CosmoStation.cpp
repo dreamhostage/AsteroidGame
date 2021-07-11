@@ -29,7 +29,7 @@ CosmoStation::CosmoStation()
     size = NeonBallTexture.getSize();
     NeonBallSprite.setOrigin(size.x / 2, size.y / 2);
 
-    CosmoStationSprite.setScale(0.5, 0.5);
+    CosmoStationSprite.setScale(0.6, 0.6);
     LifeBarTexture.loadFromFile("Images/CosmoStationLife.png");
     CSLifeBarSprite.setTexture(LifeBarTexture);
 
@@ -238,9 +238,14 @@ void CosmoStation::BulletsChecking()
                 CSLifeBarSprite.setScale(
                     CSLifeBarSprite.getScale().x - 0.005, CSLifeBarSprite.getScale().y);
             } else {
-                CSalive = false;
-                explSound = true;
-                points += 400;
+                if (CSalive)
+                {
+                    CSalive = false;
+                    tunnel::setPosition(CosmoStationSprite.getPosition());
+                    tunnelActivated = true;
+                    explSound = true;
+                    points += 400;
+                }
             }
         }
     }

@@ -41,7 +41,10 @@ public:
     Vector2u size;
     Vector2f position1;
     Vector2f position2;
+    sf::Vector2f vd;
     double angle;
+    double distanse;
+    bool tunnelActivated;
     Vector2f temp;
 
     GlobalVariables();
@@ -80,13 +83,37 @@ public:
     std::vector<particle> pbase;
 };
 
-class ship : public smoke {
+class tunnel : public smoke {
+public:
+    Texture pixelTexture;
+    Sprite pixelSprite;
+    std::vector<Sprite>::iterator bit;
+    sf::CircleShape portalCircle;
+    float arbiteAngle;
+    std::vector<Sprite> pixels;
+    sf::Vector2f newPixelPos;
+    sf::Vector2f spawningPosition;
+    int pixelspeed;
+    Clock appearingTime;
+    double portalSize;
+    double centerSize;
+    double angle;
+    int pixelCount;
+
+    tunnel();
+    void draw();
+    void setPosition(sf::Vector2f position);
+    void reset();
+};
+
+class ship : public tunnel {
 
     void addBullet(Vector2f& position, int rotation);
     void drawBullets();
     void moveShip();
     void makeShoot();
     void shipPerformance();
+    void tunnelEngine();
 
 public:
     Texture shipTexture;
@@ -94,6 +121,10 @@ public:
     Texture shieldResistTexture;
     Texture shipExplTexture;
     Texture cursorTexture;
+    Texture ammoTexture;
+    Texture shieldCountTexture;
+    Sprite shieldCountSprite;
+    Sprite ammoSprite;
     Sprite cursorSprite;
     Sprite shipExplSprite;
     Sprite shieldResistSprite;
@@ -114,12 +145,12 @@ public:
     Sound shieldSound;
     Sound shot;
     std::vector<Sprite> bulletsArray;
-    Text HPtext;
     Text bulletsSizeText;
     Text pointsText;
     Text shieldText;
     Text finalPointsText;
     Text rang;
+    sf::RectangleShape LifeBar;
     Clock ShootingTime;
     Clock ShootingTimeNoBullets;
     Clock shipExplTime;
@@ -135,15 +166,14 @@ public:
     double shipSpeed;
     double bulletSpeed;
     double angle;
-    double distanse;
     int shipExplFrame;
     bool finalexpl;
     bool aimSelected;
     bool freeze;
     bool startposition;
+    bool isInsideTunnel;
     std::string text;
     Vector2f mousePosition;
-    sf::Vector2f vd;
     Vector2i pixelPos;
 
     ship();
@@ -189,6 +219,7 @@ public:
     };
 
     std::vector<asteroidsArray> ast;
+    std::vector<asteroidsArray>::iterator deleteAstIterator;
     Texture bigAstTexture;
     Texture smallAstTexture;
     Texture astExplTexture;
@@ -196,6 +227,7 @@ public:
     Vector2u size;
     Clock AsteroidsSpawningTime;
     int astSpawningCount;
+    bool isAsteroidsPassive;
 
     asteroids();
     void draw();
@@ -203,7 +235,6 @@ public:
 
 private:
     std::vector<asteroidsArray>::iterator it;
-    std::vector<Sprite>::iterator bit;
     bool destroyed;
     double distanseShip;
     Vector2f shipCoordinates;
@@ -224,6 +255,8 @@ public:
     SoundBuffer laserShootBuffer;
     Sound laserShootSound;
     Texture laserTexture;
+    Texture laserCountTexture;
+    Sprite laserCountSprite;
     Sprite laserSprite;
     Text laserText;
     Font font;
@@ -267,7 +300,9 @@ public:
     Color ClissanShipCustomColor;
     std::vector<Sprite> clissansbulletsArray;
     std::vector<clissanShips> clisansShipsArray;
+    std::vector<clissanShips>::iterator deleteClissanShip;
     bool side;
+    bool isClissansPassive;
     int selNumb;
     int selectedCount;
     int clissansSpawningDistance;
@@ -359,6 +394,8 @@ class rockets : public CosmoStation {
 public:
     Texture rocketTexture;
     Texture rockExplTexture;
+    Texture rocketsTexture;
+    Sprite rocketsSprite;
     Sprite rockExplSprite;
     Sprite rocketSprite;
     SoundBuffer rocketBuffer;

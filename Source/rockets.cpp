@@ -6,6 +6,11 @@ rockets::rockets()
     rocketBuffer.loadFromFile("Sounds/rocket.ogg");
     rockExplTexture.loadFromFile("Images/asteroidexplosion.png");
     font.loadFromFile("Images/18949.ttf");
+    rocketsTexture.loadFromFile("Images/rockets.png");
+    rocketsSprite.setTexture(rocketsTexture);
+    size = rocketsTexture.getSize();
+    rocketsSprite.setOrigin(size.x / 2, size.y / 2);
+    rocketsSprite.setScale(0.7, 0.7);
     rockExplSprite.setTexture(astExplTexture);
     rocketSound.setBuffer(rocketBuffer);
     rocketsText.setFont(font);
@@ -26,6 +31,7 @@ void rockets::draw()
     if (rocketExplosion) {
         drawRocketExplosion();
     }
+
     if (rocketsCount) {
 
         drawRocketsText();
@@ -64,11 +70,11 @@ void rockets::drawRocketExplosion()
 
 void rockets::drawRocketsText()
 {
-    rocketsText.setPosition(ViewCenter.x - screenX / 2 + 300, ViewCenter.y - screenY / 2 + 50);
-    text = "ROCKETS: ";
-    text += std::to_string(rocketsCount);
-    rocketsText.setString(text);
+    rocketsText.setPosition(ViewCenter.x - screenX / 2 + 50, ViewCenter.y - rocketsTexture.getSize().y / 3 + rocketsTexture.getSize().x);
+    rocketsText.setString(std::to_string(rocketsCount));
+    rocketsSprite.setPosition(ViewCenter.x - screenX / 2 + rocketsTexture.getSize().x / 2, ViewCenter.y + rocketsTexture.getSize().x + 8);
     window->draw(rocketsText);
+    window->draw(rocketsSprite);
 }
 
 void rockets::launchRocket()
@@ -192,10 +198,15 @@ void rockets::aimCosmoStation()
             CSLifeBarSprite.setScale(
                 CSLifeBarSprite.getScale().x - 0.025, CSLifeBarSprite.getScale().y);
         } else {
-            CSalive = false;
-            explSound = true;
-            CSSelected = false;
-            points += 400;
+            if (CSalive)
+            {
+                CSalive = false;
+                tunnel::setPosition(CosmoStationSprite.getPosition());
+                tunnelActivated = true;
+                explSound = true;
+                CSSelected = false;
+                points += 400;
+            }
         }
     } else {
         position2 = CosmoStationSprite.getPosition();

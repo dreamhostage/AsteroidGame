@@ -5,6 +5,11 @@ laser::laser()
     laserShootBuffer.loadFromFile("Sounds/Laser_Shoot.ogg");
     laserTexture.loadFromFile("Images/laser.png");
     font.loadFromFile("Images/18949.ttf");
+    laserCountTexture.loadFromFile("Images/autoshoot.png");
+    laserCountSprite.setTexture(laserCountTexture);
+    size = laserCountTexture.getSize();
+    laserCountSprite.setOrigin(size.x / 2, size.y / 2);
+    laserCountSprite.setScale(0.8, 0.8);
     laserSprite.setTexture(laserTexture);
     size = laserTexture.getSize();
     laserSprite.setOrigin(size.x / 2, size.y);
@@ -18,12 +23,15 @@ laser::laser()
 void laser::draw()
 {
     if (gameStarted) {
+
         if (laserShootCount) {
-            laserText.setPosition(ViewCenter.x - screenX / 2 + 300, ViewCenter.y - screenY / 2);
-            text = "LASER: ";
-            text += std::to_string(laserShootCount);
-            laserText.setString(text);
+
+            laserText.setPosition(ViewCenter.x - screenX / 2 + 50, ViewCenter.y - laserCountTexture.getSize().y / 3 - 123);
+            laserCountSprite.setPosition(ViewCenter.x - screenX / 2 + laserCountTexture.getSize().x / 2, ViewCenter.y - 113);
+
+            laserText.setString(std::to_string(laserShootCount));
             window->draw(laserText);
+            window->draw(laserCountSprite);
 
             position1 = ShipSprite.getPosition();
             for (int i = 0; i < ast.size(); ++i) {
