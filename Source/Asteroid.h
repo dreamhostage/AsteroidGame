@@ -433,6 +433,12 @@ public:
     Texture banerAuthorTexture;
     Texture gameoverTexture;
     Texture screenTexture;
+
+    Texture banerTexture1;
+    Texture banerSettingsTexture1;
+    Texture banerPlayTexture1;
+    Texture banerAuthorTexture1;
+
     Sprite screenSprite;
     Sprite gameoverSprite;
     Sprite banerAuthorSprite;
@@ -450,7 +456,24 @@ public:
     Clock PointsSpeedRaising;
 };
 
-class framework : public Menus {
+class words : public Menus
+{
+    Font font;
+    Text phrase;
+public:
+    words();
+    Vector2f destinationPosition;
+    Vector2f appearingPosition;
+    Clock timer;
+    void draw();
+    bool startPositionSet;
+    bool textActivated;
+    bool backDirection;
+    int textSize;
+    int phraseNumber;
+};
+
+class framework : public words {
 
     void Gameover();
     void setSettings(

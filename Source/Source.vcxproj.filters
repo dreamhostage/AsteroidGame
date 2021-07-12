@@ -54,6 +54,9 @@
     <ClCompile Include="tunnel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="words.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Asteroid.h">

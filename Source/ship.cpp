@@ -136,7 +136,10 @@ void ship::draw()
             }
             if (!Keyboard::isKeyPressed(Keyboard::F))
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    makeShoot();
+                    if (!isInsideTunnel)
+                    {
+                        makeShoot();
+                    }
                 }
         }
 

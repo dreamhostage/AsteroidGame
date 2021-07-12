@@ -159,6 +159,7 @@ xcopy "$(ProjectDir)..\Sounds" "$(ProjectDir)\Sounds" /e /y /i /r</Command>
     <ClCompile Include="rockets.cpp" />
     <ClCompile Include="ship.cpp" />
     <ClCompile Include="smoke.cpp" />
+    <ClCompile Include="words.cpp" />
     <ClCompile Include="tunnel.cpp" />
   </ItemGroup>
   <ItemGroup>

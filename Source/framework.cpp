@@ -278,13 +278,17 @@ void framework::run()
         window->draw(screenSprite);
         if (!pause) {
             ImprovementsBase::draw();
-            rockets::draw();
-            laser::draw();
+            if (!isInsideTunnel)
+            {
+                rockets::draw();
+                laser::draw();
+            }
             asteroids::draw();
             ship::draw();
             clissans::draw();
             CosmoStation::draw();
             smoke::draw(*window);
+            words::draw();
             Gameover();
         }
         if (tunnelActivated)

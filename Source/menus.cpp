@@ -10,6 +10,10 @@ Menus::Menus()
     banerAuthorTexture.loadFromFile("Images/banerAuthor.png");
     gameoverTexture.loadFromFile("Images/GameOver.png");
     screenTexture.loadFromFile("Images/screen.png");
+    banerTexture1.loadFromFile("Images/baner2.png");
+    banerSettingsTexture1.loadFromFile("Images/banerControl2.png");
+    banerPlayTexture1.loadFromFile("Images/banerPlay2.png");
+    banerAuthorTexture1.loadFromFile("Images/banerAuthor2.png");
 
     screenSprite.setTexture(screenTexture);
     gameoverSprite.setTexture(gameoverTexture);
@@ -30,6 +34,14 @@ Menus::Menus()
 
 void Menus::startMenu()
 {
+    if (gameStarted)
+    {
+        banerAuthorSprite.setTexture(banerAuthorTexture1);
+        banerPlaySprite.setTexture(banerPlayTexture1);
+        banerSettingsSprite.setTexture(banerSettingsTexture1);
+        banerSprite.setTexture(banerTexture1);
+    }
+
     if (pause) {
         if (!tapOnButton) {
             if (banerSprite.getPosition().y

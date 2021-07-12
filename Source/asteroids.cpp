@@ -184,7 +184,10 @@ void asteroids::draw()
 
                 if (gameStarted) {
                     if (!destroyed) {
-                        shipDistanceMonitoring(ast[i]);
+                        if (!isInsideTunnel)
+                        {
+                            shipDistanceMonitoring(ast[i]);
+                        }
                         bulletsDistanceMonitoring(ast[i]);
                     }
                 }
