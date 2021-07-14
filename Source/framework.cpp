@@ -227,6 +227,8 @@ void framework::Gameover()
 
                     window->setView(startGOview);
                 } else {
+                    ViewCenter.x = startGOview.getCenter().x;
+                    ViewCenter.y = startGOview.getCenter().y;
                     ResetGame();
                 }
             }

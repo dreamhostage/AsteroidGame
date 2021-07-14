@@ -409,7 +409,7 @@ void CosmoStation::reset()
     explSound = false;
     CSSelected = false;
     NeonBallAction = false;
-    CSActivated = true;
+    CSActivated = false;
     NBtaleWait = false;
     NBexplActivate = false;
     CSSpawn();

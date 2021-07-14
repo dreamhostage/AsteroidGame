@@ -98,5 +98,7 @@ void words::reset()
 	startPositionSet = false;
 	textActivated = false;
 	backDirection = false;
+	phrase.setString("");
+	points = 0;
 	phraseNumber = 1;
 }
