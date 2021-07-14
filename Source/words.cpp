@@ -39,9 +39,9 @@ void words::draw()
 			textActivated = true;
 		}
 	}
-	if (points == 0)
+	if (points > 600)
 	{
-		if (phrase.getString().toAnsiString().compare("Something EVIL is here!") && phraseNumber == 1)
+		if (phrase.getString().toAnsiString().compare("Something EVIL is here!") && phraseNumber == 4)
 		{
 			phrase.setString("Something EVIL is here!");
 			CSActivated = true;
@@ -91,4 +91,12 @@ void words::draw()
 
 		window->draw(phrase);
 	}
+}
+
+void words::reset()
+{
+	startPositionSet = false;
+	textActivated = false;
+	backDirection = false;
+	phraseNumber = 1;
 }

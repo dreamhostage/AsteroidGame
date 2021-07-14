@@ -36,6 +36,7 @@ public:
     bool GameOver;
     bool godmode;
     bool gameStarted;
+    bool exitGame;
     View view;
     Vector2f globalCenter;
     Vector2u size;
@@ -439,6 +440,11 @@ public:
     Texture banerPlayTexture1;
     Texture banerAuthorTexture1;
 
+    Texture exitTexture;
+    Texture exitInfoTexture;
+
+    Sprite exitSptite;
+    Sprite exitInfoSprite;
     Sprite screenSprite;
     Sprite gameoverSprite;
     Sprite banerAuthorSprite;
@@ -453,6 +459,7 @@ public:
     bool selectButton;
     bool tapOnButton;
     bool pause;
+    bool resumePlay;
     Clock PointsSpeedRaising;
 };
 
@@ -466,6 +473,7 @@ public:
     Vector2f appearingPosition;
     Clock timer;
     void draw();
+    void reset();
     bool startPositionSet;
     bool textActivated;
     bool backDirection;

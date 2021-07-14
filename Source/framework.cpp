@@ -16,6 +16,7 @@ framework::framework(
 {
     setSettings(x, y, mapX, mapY, num_ammo, num_asteroids);
 }
+
 void framework::setSettings(
     int inscreenX, int inscreenY, int inmainX, int inMainY, int num_ammo, int num_asteroids)
 {
@@ -93,6 +94,12 @@ void framework::setSettings(
     banerAuthorSprite.setPosition(
         ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
 
+    size = exitTexture.getSize();
+    exitSptite.setOrigin(size.x / 2, size.y / 2);
+
+    size = exitInfoTexture.getSize();
+    exitInfoSprite.setOrigin(size.x / 2, size.y / 2);
+
     size = gameoverTexture.getSize();
     gameoverSprite.setOrigin(size.x / 2, size.y / 2);
     gameoverSprite.setPosition(view.getCenter().x, view.getCenter().y - 700);
@@ -121,6 +128,7 @@ void framework::ResetGame()
     clissans::reset();
     asteroids::reset();
     tunnel::reset();
+    words::reset();
 
     music.stop();
 }
@@ -249,16 +257,7 @@ void framework::run()
 
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
             if (!pause) {
-                pause = true;
-                banerAuthorSprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
-                banerPlaySprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
-                banerSettingsSprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
-                banerSprite.setPosition(
-                    ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (1920 * 1080)));
-                tapOnButton = false;
+                Menus::reset();
             }
         }
 
@@ -291,6 +290,10 @@ void framework::run()
             words::draw();
             Gameover();
         }
+        else
+        {
+            words::timer.restart();
+        }
         if (tunnelActivated)
         {
             tunnel::draw();
@@ -322,5 +325,10 @@ void framework::run()
 
         window->display();
         window->clear();
+        if (exitGame)
+        {
+            ResetGame();
+            exit(0);
+        }
     }
 }
