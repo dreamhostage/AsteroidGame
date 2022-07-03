@@ -3,8 +3,10 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+#include <box2d/box2d.h>
 #include <math.h>
 #include <stdio.h>
+#include <memory>
 
 #include <iostream>
 #include <iterator>
@@ -13,6 +15,9 @@
 #include <vector>
 
 #define M_PI 3.14159265358979323846
+
+const float SCALE = 30.f;
+const float DEG = 57.29577f;
 
 using namespace sf;
 
@@ -47,6 +52,9 @@ public:
     double distanse;
     bool tunnelActivated;
     Vector2f temp;
+
+    b2Vec2 Gravity;
+    std::unique_ptr<b2World> World;
 
     GlobalVariables();
     void reset();
@@ -131,6 +139,9 @@ public:
     Sprite shieldResistSprite;
     Sprite bulletSprite;
     Sprite ShipSprite;
+    Texture foneTexture;
+
+    Sprite foneSprite;
     SoundBuffer ShipImprovementSoundBuffer;
     SoundBuffer shootBuffer;
     SoundBuffer shieldSoundBuffer;
@@ -217,6 +228,13 @@ public:
         double frame = 0;
         bool explosion = false;
         float rotation;
+
+        //---
+        b2BodyDef bodyDef;
+        b2Body* body;
+        b2CircleShape dynamicCircle;
+        b2FixtureDef fixtureDef;
+        //---
     };
 
     std::vector<asteroidsArray> ast;
@@ -242,7 +260,6 @@ private:
     Vector2f currentPosition;
 
     void add(Vector2f position, bool type, int speed, int rotation = 0);
-    void physic();
     bool spawningChecking(Vector2f& first);
     void AsteroidSpawning();
     void asteroidExplosion(asteroidsArray& asteroid);
@@ -434,12 +451,10 @@ public:
     Texture banerAuthorTexture;
     Texture gameoverTexture;
     Texture screenTexture;
-
     Texture banerTexture1;
     Texture banerSettingsTexture1;
     Texture banerPlayTexture1;
     Texture banerAuthorTexture1;
-
     Texture exitTexture;
     Texture exitInfoTexture;
 

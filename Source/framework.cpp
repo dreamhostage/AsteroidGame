@@ -55,12 +55,12 @@ void framework::setSettings(
     }
 
     if (!num_asteroids) {
-        astSpawningCount = (screenX * screenY * 20) / (1920 * 1080);
+        astSpawningCount = (screenX * screenY * 20) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height);
     } else
         astSpawningCount = num_asteroids;
 
-    clisansCount = (screenX * screenY * 10) / (1920 * 1080);
-    clissansSpawningDistance = (screenX * screenY * 600) / (1920 * 1080);
+    clisansCount = (screenX * screenY * 10) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height);
+    clissansSpawningDistance = (screenX * screenY * 600) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height);
 
     ViewCenter.x = mainX / 2;
     ViewCenter.y = mainY / 2;
@@ -77,22 +77,22 @@ void framework::setSettings(
     size = banerTexture.getSize();
     banerSprite.setOrigin(size.x / 2, size.y / 2);
     banerSprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
 
     banerSettingsTexture.getSize();
     banerSettingsSprite.setOrigin(size.x / 2, size.y / 2);
     banerSettingsSprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
 
     banerPlayTexture.getSize();
     banerPlaySprite.setOrigin(size.x / 2, size.y / 2);
     banerPlaySprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
 
     banerAuthorTexture.getSize();
     banerAuthorSprite.setOrigin(size.x / 2, size.y / 2);
     banerAuthorSprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
 
     size = exitTexture.getSize();
     exitSptite.setOrigin(size.x / 2, size.y / 2);
@@ -114,6 +114,9 @@ void framework::setSettings(
     this->godmode = godmode;
     // this->godmode = true;
     ship::ShipSprite.setPosition(mainX / 2, mainY / 2);
+
+    Gravity.Set(0.f, 0.f);
+    World = std::make_unique<b2World>(Gravity);
 
     CSSpawn();
 }
@@ -240,8 +243,11 @@ void framework::Gameover()
 
 void framework::run()
 {
-    while (window->isOpen()) {
+   while (window->isOpen()) {
         Event event;
+
+        World->Step(1/60.f, 8, 3);
+
         while (window->pollEvent(event)) {
             if (event.type == Event::Closed)
                 window->close();
@@ -276,6 +282,7 @@ void framework::run()
         cursorSprite.setPosition(window->mapPixelToCoords(Mouse::getPosition(*window)));
         mousePosition = window->mapPixelToCoords(Mouse::getPosition(*window));
 
+        window->draw(foneSprite);
         window->draw(screenSprite);
         if (!pause) {
             ImprovementsBase::draw();

@@ -67,7 +67,7 @@ void Menus::startMenu()
     if (pause) {
         if (!tapOnButton) {
             if (banerSprite.getPosition().y
-                > ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080))) {
+                > ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height))) {
                 banerSprite.setPosition(
                     banerSprite.getPosition().x, banerSprite.getPosition().y - 1);
                 exitSptite.setPosition(banerSprite.getPosition().x + screenX / 2 - exitTexture.getSize().x / 2, banerSprite.getPosition().y);
@@ -152,13 +152,13 @@ void Menus::startMenu()
 void Menus::reset()
 {
     banerAuthorSprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
     banerPlaySprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
     banerSettingsSprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
     banerSprite.setPosition(
-        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (1920 * 1080)));
+        ViewCenter.x, ViewCenter.y + ((screenX * screenY * 600) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height)));
     gameoverSprite.setPosition(view.getCenter().x, view.getCenter().y - 700);
 
     tapOnButton = false;

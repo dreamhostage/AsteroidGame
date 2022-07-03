@@ -17,7 +17,9 @@ ship::ship()
     font.loadFromFile("Images/18949.ttf");
     ammoTexture.loadFromFile("Images/ammo.png");
     shieldCountTexture.loadFromFile("Images/shield.png");
+    foneTexture.loadFromFile("Images/fone.png");
 
+    foneSprite.setTexture(foneTexture);
     shieldCountSprite.setTexture(shieldCountTexture);
     size = shieldCountTexture.getSize();
     shieldCountSprite.setOrigin(size.x / 2, size.y / 2);
@@ -47,7 +49,8 @@ ship::ship()
     ShipSprite.setOrigin(size.x / 2, size.y / 2);
     size = bulletTexture.getSize();
     bulletSprite.setOrigin(size.x / 2, size.y);
-
+    size = foneTexture.getSize();
+    foneSprite.setOrigin(size.x / 2, size.y / 2);
     shieldResistSprite.setTexture(shieldResistTexture);
     size = shieldResistTexture.getSize();
     shieldResistSprite.setOrigin(size.x / 2, size.y / 2);
@@ -199,6 +202,7 @@ void ship::moveShip()
     if (ViewCenter.y > mainY - screenY / 2)
         ViewCenter.y = mainY - screenY / 2;
 
+    foneSprite.setPosition(ShipSprite.getPosition());
     view = window->getView();
     view.setCenter(ViewCenter);
     window->setView(view);

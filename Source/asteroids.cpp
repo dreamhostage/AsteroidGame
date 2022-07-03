@@ -21,6 +21,37 @@ void asteroids::add(Vector2f position, bool type, int speed, int rotation)
     new_ast.type = type;
     new_ast.rotation = rotation;
 
+    //---
+    new_ast.bodyDef.type = b2_dynamicBody;
+    new_ast.bodyDef.position.Set(position.x / SCALE, position.y / SCALE);
+    new_ast.body = World->CreateBody(&new_ast.bodyDef);
+    float magnitude = 0;
+
+
+    if (!type)
+    {
+        new_ast.dynamicCircle.m_radius = 35 / SCALE;
+        magnitude = rand() % 65 + 1;
+    }
+    else
+    {
+        magnitude = rand() % 5 + 1;
+        new_ast.dynamicCircle.m_radius = 12 / SCALE;
+    }
+
+    new_ast.fixtureDef.shape = &new_ast.dynamicCircle;
+    new_ast.fixtureDef.density = 1.0f;
+    new_ast.fixtureDef.friction = 0.3f;
+
+    new_ast.body->CreateFixture(&new_ast.fixtureDef);
+
+    new_ast.body->SetTransform(new_ast.body->GetPosition(), (rotation - 180) / DEG);
+    b2Vec2 force = b2Vec2((cos(new_ast.body->GetAngle() - 4.7) * magnitude), (sin(new_ast.body->GetAngle() - 4.7) * magnitude));
+    new_ast.body->ApplyLinearImpulse(force, new_ast.body->GetPosition(), true);
+    //---
+    
+    
+
     if (!type) {
         new_ast.sprite.setTexture(bigAstTexture);
         size = bigAstTexture.getSize();
@@ -31,31 +62,7 @@ void asteroids::add(Vector2f position, bool type, int speed, int rotation)
         new_ast.sprite.setOrigin(size.x / 2, size.y / 2);
     }
 
-    ast.push_back(new_ast);
-}
-
-void asteroids::physic()
-{
-    if (ast.size() > 1) {
-        for (int i = 0; i < asteroids::ast.size() - 1; ++i) {
-            Vector2f first = asteroids::ast[i].sprite.getPosition();
-            for (int k = i + 1; k < asteroids::ast.size(); ++k) {
-                Vector2f second = asteroids::ast[k].sprite.getPosition();
-                double distanse = sqrt(
-                    (first.x - second.x) * (first.x - second.x)
-                    + (first.y - second.y) * (first.y - second.y));
-                if (distanse < 50) {
-                    Vector2f pos2 = asteroids::ast[k].sprite.getPosition();
-                    sf::Vector2f v(first.x, first.y);
-                    sf::Vector2f vd = v - pos2;
-                    int rot = std::atan2(vd.y, vd.x) * 180 / M_PI + 90;
-                    asteroids::ast[i].rotation = rot;
-                    asteroids::ast[k].rotation = rot + 180;
-                    std::swap(ast[i].speed, ast[k].speed);
-                }
-            }
-        }
-    }
+    ast.push_back(std::move(new_ast));
 }
 
 bool asteroids::spawningChecking(Vector2f& first)
@@ -77,7 +84,7 @@ void asteroids::AsteroidSpawning()
     if (AsteroidsSpawningTime.getElapsedTime().asSeconds() > 4) {
         AsteroidsSpawningTime.restart();
 
-        for (int i = 0; i < astSpawningCount; ++i) {
+       for (int i = 0; i < astSpawningCount; ++i) {
             Vector2f position;
             static int side = 0;
             ++side;
@@ -148,7 +155,6 @@ void asteroids::draw()
         if (!tunnelActivated)
         {
             AsteroidSpawning();
-            physic();
         }
 
         Vector2f ship = ship::ShipSprite.getPosition();
@@ -170,12 +176,12 @@ void asteroids::draw()
                     + (ship.y - currentPosition.y) * (ship.y - currentPosition.y));
 
                 if (currentPosition.x < (mainX + 110) && currentPosition.y < (mainY + 110)
-                    && currentPosition.x > -110 && currentPosition.y > -110) {
-                    double angle = asteroids::ast[i].rotation;
-                    angle -= (angle - 90) * 2;
-                    asteroids::ast[i].sprite.setPosition(
-                        currentPosition.x + asteroids::ast[i].speed * sin((angle)*M_PI / 180),
-                        currentPosition.y + asteroids::ast[i].speed * cos((angle)*M_PI / 180));
+                    && currentPosition.x > -110 && currentPosition.y > -110) 
+                {
+                    b2Vec2 pos = asteroids::ast[i].body->GetPosition();
+                    float angl = asteroids::ast[i].body->GetAngle();
+                    asteroids::ast[i].sprite.setPosition(pos.x * SCALE, pos.y * SCALE);
+                    asteroids::ast[i].sprite.setRotation(angl * DEG);
                 } else {
                     it = ast.begin();
                     ast.erase(it + i);
@@ -194,7 +200,6 @@ void asteroids::draw()
 
                 if (!destroyed)
                 {
-                    asteroids::ast[i].sprite.rotate(asteroids::ast[i].speed);
                     window->draw(ast[i].sprite);
                 }
             }
@@ -221,12 +226,33 @@ void asteroids::draw()
                 distanse = sqrt(
                     (position1.x - position2.x) * (position1.x - position2.x)
                     + (position1.y - position2.y) * (position1.y - position2.y));
-                if (distanse < 60)
+                if (distanse < 90)
                 {
                     deleteAstIterator = ast.begin();
                     ast.erase(deleteAstIterator + i);
                 }
+                else
+                {
+                    position1 = ast[i].sprite.getPosition();
+                    vd = position2 - position1;
+                    angle = std::atan2(vd.y, vd.x) * 180.f / M_PI + 90;
+
+                    ast[i].body->SetTransform(ast[i].body->GetPosition(), (angle - 180) / DEG);
+                    b2Vec2 force;
+
+                    if (!ast[i].type)
+                    {
+                        force = b2Vec2((cos(ast[i].body->GetAngle() - 4.7) * 15), (sin(ast[i].body->GetAngle() - 4.7) * 15));
+                    }
+                    else
+                    {
+                        force = b2Vec2((cos(ast[i].body->GetAngle() - 4.7) * 2), (sin(ast[i].body->GetAngle() - 4.7) * 2));
+                    }
+
+                    ast[i].body->ApplyForce(force, ast[i].body->GetPosition(), true);
+                }
             }
+
         }
     }
 }
@@ -258,9 +284,12 @@ void asteroids::shipDistanceMonitoring(asteroidsArray& asteroid)
             if (!shieldCount) {
                 if (!godmode)
                 {
-                    health -= 20;
-                    LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x - (screenX * 0.2), LifeBar.getSize().y));
-                    LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
+                    if (!tunnelActivated)
+                    {
+                        health -= 20;
+                        LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x - (screenX * 0.2), LifeBar.getSize().y));
+                        LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
+                    }
                 }
                 if (health <= 0) {
                     health = 0;
@@ -280,9 +309,12 @@ void asteroids::shipDistanceMonitoring(asteroidsArray& asteroid)
             if (!shieldCount) {
                 if (!godmode)
                 {
-                    health -= 10;
-                    LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x - (screenX * 0.1), LifeBar.getSize().y));
-                    LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
+                    if (!tunnelActivated)
+                    {
+                        health -= 10;
+                        LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x - (screenX * 0.1), LifeBar.getSize().y));
+                        LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
+                    }
                 }
                 if (health <= 0) {
                     health = 0;
