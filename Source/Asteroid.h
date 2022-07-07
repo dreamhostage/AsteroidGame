@@ -297,9 +297,15 @@ public:
         bool selected = false;
         bool shoot = false;
         unsigned short int ClissanShipBlaming = 0;
+
+		b2BodyDef bodyDef;
+		b2Body* body = nullptr;
+		b2CircleShape dynamicCircle;
+		b2FixtureDef fixtureDef;
     };
 
     Texture clissanshipTexture;
+    Texture ClissanDestroyedShipTexture;
     Texture clissansbulletTexture;
     Texture frameTexture;
     Texture ClissansLifeTexture;
@@ -341,6 +347,7 @@ protected:
     void sellectClissanShip(clissanShips& ClissansShip);
     void ClissanShipBulletsChecking(clissanShips& ClissansShip);
     void ClissanShipMovingBehavior(clissanShips& ClissansShip);
+    void RunDestroyedLiveCycle(clissanShips* CurrentShip);
 };
 
 class CosmoStation : public clissans {

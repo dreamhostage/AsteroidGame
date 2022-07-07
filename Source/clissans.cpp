@@ -307,6 +307,8 @@ void clissans::ClissanShipBulletsChecking(clissanShips& ClissansShip)
             aimSelected = false;
         }
         points += 10;
+
+        RunDestroyedLiveCycle(&ClissansShip);
     }
 }
 
@@ -396,4 +398,29 @@ void clissans::reset()
     while (cit != clisansShipsArray.end()) {
         cit = clisansShipsArray.erase(cit);
     }
+}
+
+void clissans::RunDestroyedLiveCycle(clissanShips* CurrentShip)
+{
+	CurrentShip->sprite.setTexture(ClissanDestroyedShipTexture);
+
+	CurrentShip->bodyDef.type = b2_dynamicBody;
+	CurrentShip->bodyDef.position.Set(CurrentShip->sprite.getPosition().x / SCALE, CurrentShip->sprite.getPosition().y / SCALE);
+	CurrentShip->body = World->CreateBody(&CurrentShip->bodyDef);
+	float magnitude = rand() % 30 + 1;
+
+	CurrentShip->dynamicCircle.m_radius = 35 / SCALE;
+	CurrentShip->fixtureDef.shape = &CurrentShip->dynamicCircle;
+	CurrentShip->fixtureDef.density = 1.0f;
+	CurrentShip->fixtureDef.friction = 0.3f;
+
+	CurrentShip->body->CreateFixture(&CurrentShip->fixtureDef);
+
+	CurrentShip->body->SetTransform(CurrentShip->body->GetPosition(), (CurrentShip->sprite.getRotation()) / DEG);
+	b2Vec2 force = b2Vec2((cos(CurrentShip->body->GetAngle() - 4.7) * magnitude), (sin(CurrentShip->body->GetAngle() - 4.7) * magnitude));
+	b2Vec2 ImpulsePoint = CurrentShip->body->GetPosition();
+	ImpulsePoint.x += rand() % 5 + 1;
+	ImpulsePoint.x -= rand() % 5 + 1;
+	CurrentShip->body->ApplyLinearImpulse(force, ImpulsePoint, true);
+	CurrentShip->sprite.setColor(ClissanShipCustomColor);
 }

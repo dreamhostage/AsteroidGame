@@ -36,7 +36,7 @@ void asteroids::add(Vector2f position, bool type, int speed, int rotation)
     else
     {
         magnitude = rand() % 5 + 1;
-        new_ast.dynamicCircle.m_radius = 12 / SCALE;
+        new_ast.dynamicCircle.m_radius = 20 / SCALE;
     }
 
     new_ast.fixtureDef.shape = &new_ast.dynamicCircle;
@@ -165,6 +165,7 @@ void asteroids::draw()
                     asteroidExplosion(ast[i]);
                 } else {
                     it = ast.begin();
+                    World->DestroyBody((it + i)->body);
                     ast.erase(it + i);
                 }
             } else {
@@ -184,6 +185,7 @@ void asteroids::draw()
                     asteroids::ast[i].sprite.setRotation(angl * DEG);
                 } else {
                     it = ast.begin();
+                    World->DestroyBody((it + i)->body);
                     ast.erase(it + i);
                     destroyed = true;
                 }
@@ -229,6 +231,7 @@ void asteroids::draw()
                 if (distanse < 90)
                 {
                     deleteAstIterator = ast.begin();
+                    World->DestroyBody((deleteAstIterator + i)->body);
                     ast.erase(deleteAstIterator + i);
                 }
                 else
@@ -424,7 +427,9 @@ void asteroids::reset()
 {
     auto ait = ast.begin();
     isAsteroidsPassive = false;
-    while (ait != ast.end()) {
+    while (ait != ast.end()) 
+    {
+        World->DestroyBody(ait->body);
         ait = ast.erase(ait);
     }
 }
