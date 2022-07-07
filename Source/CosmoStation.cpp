@@ -282,25 +282,29 @@ void CosmoStation::moving()
 
 void CosmoStation::laserScaning()
 {
-    position1 = CosmoStationSprite.getPosition();
-    for (int i = 0; i < ast.size(); ++i) {
-        position2 = ast[i].sprite.getPosition();
-        distanse = sqrt(
-            (position1.x - position2.x) * (position1.x - position2.x)
-            + (position1.y - position2.y) * (position1.y - position2.y));
-        if (distanse < 200) {
-            laserShootSound.play();
+    if (CSActivated)
+    {
+        position1 = CosmoStationSprite.getPosition();
+        for (int i = 0; i < ast.size(); ++i) {
+            position2 = ast[i].sprite.getPosition();
+            distanse = sqrt(
+                (position1.x - position2.x) * (position1.x - position2.x)
+                + (position1.y - position2.y) * (position1.y - position2.y));
+            if (distanse < 200) {
+                laserShootSound.play();
 
-            if (autoAimTime < 4) {
-                laserSprite.setPosition(position1);
-                vd = position1 - position2;
-                laserSprite.setRotation(std::atan2(vd.y, vd.x) * 180.f / M_PI + 270);
-                window->draw(laserSprite);
-                ++autoAimTime;
-            } else {
-                autoAimTime = 0;
-                std::vector<asteroidsArray>::iterator it = ast.begin();
-                ast.erase(it + i);
+                if (autoAimTime < 4) {
+                    laserSprite.setPosition(position1);
+                    vd = position1 - position2;
+                    laserSprite.setRotation(std::atan2(vd.y, vd.x) * 180.f / M_PI + 270);
+                    window->draw(laserSprite);
+                    ++autoAimTime;
+                }
+                else {
+                    autoAimTime = 0;
+                    std::vector<asteroidsArray>::iterator it = ast.begin();
+                    ast.erase(it + i);
+                }
             }
         }
     }

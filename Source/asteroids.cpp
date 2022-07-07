@@ -279,6 +279,7 @@ void asteroids::shipDistanceMonitoring(asteroidsArray& asteroid)
                         health -= 20;
                         LifeBar.setSize(sf::Vector2f(LifeBar.getSize().x - (screenX * 0.2), LifeBar.getSize().y));
                         LifeBar.setOrigin(LifeBar.getSize().x / 2, LifeBar.getSize().y / 2);
+                        destroying.play();
                     }
                 }
                 if (health <= 0) {

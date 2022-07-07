@@ -124,12 +124,76 @@ void ship::draw()
 {
     if (gameStarted) {
         if (!GameOver) {
+            //---
+            b2Vec2 pos = body->GetPosition();
+            float angl = body->GetAngle();
+            ShipSprite.setPosition(pos.x * SCALE, pos.y * SCALE);
+
+            position1 = ShipSprite.getPosition();
+            ViewCenter = ShipSprite.getPosition();
+
+            if (ViewCenter.x < screenX / 2)
+                ViewCenter.x = screenX / 2;
+            if (ViewCenter.y < screenY / 2)
+                ViewCenter.y = screenY / 2;
+
+            if (ViewCenter.x > mainX - screenX / 2)
+                ViewCenter.x = mainX - screenX / 2;
+
+            if (ViewCenter.y > mainY - screenY / 2)
+                ViewCenter.y = mainY - screenY / 2;
+
+            foneSprite.setPosition(ShipSprite.getPosition());
+            view = window->getView();
+            view.setCenter(ViewCenter);
+            window->setView(view);
+
+            position1 = ShipSprite.getPosition();
+            b2Vec2 posi;
+
+            if (position1.x < 0) {
+                position1.x = mainX;
+                //ShipSprite.setPosition(position1);
+                posi.x = position1.x / SCALE;
+                posi.y = position1.y / SCALE;
+                body->SetTransform(posi, body->GetAngle());
+            }
+            if (position1.y < 0) {
+                position1.y = mainY;
+                //ShipSprite.setPosition(position1);
+                posi.x = position1.x / SCALE;
+                posi.y = position1.y / SCALE;
+                body->SetTransform(posi, body->GetAngle());
+            }
+            if (position1.x > mainX) {
+                position1.x = 0;
+                //ShipSprite.setPosition(position1);
+                posi.x = position1.x / SCALE;
+                posi.y = position1.y / SCALE;
+                body->SetTransform(posi, body->GetAngle());
+            }
+            if (position1.y > mainY) {
+                position1.y = 0;
+                //ship::ShipSprite.setPosition(position1);
+                posi.x = position1.x / SCALE;
+                posi.y = position1.y / SCALE;
+                body->SetTransform(posi, body->GetAngle());
+            }
+            //---
+
             if (!freeze) {
                 if (Keyboard::isKeyPressed(Keyboard::A))
+                {
                     ShipSprite.rotate(shipRotation * -1);
+                    //body->SetTransform(body->GetPosition(), body->GetAngle() - 0.1f);
+                }
                 if (Keyboard::isKeyPressed(Keyboard::D))
+                {
                     ShipSprite.rotate(shipRotation);
-                if (Keyboard::isKeyPressed(Keyboard::W)) {
+                    //body->SetTransform(body->GetPosition(), body->GetAngle() + 0.1f);
+                }
+                if (Keyboard::isKeyPressed(Keyboard::W)) 
+                {
                     if (!isInsideTunnel)
                     {
                         moveShip();
@@ -162,50 +226,21 @@ void ship::draw()
 
 void ship::moveShip()
 {
-    position1 = ShipSprite.getPosition();
-
-    if (position1.x < 0) {
-        position1.x = mainX;
-        ShipSprite.setPosition(position1);
-    }
-    if (position1.y < 0) {
-        position1.y = mainY;
-        ShipSprite.setPosition(position1);
-    }
-    if (position1.x > mainX) {
-        position1.x = 0;
-        ShipSprite.setPosition(position1);
-    }
-    if (position1.y > mainY) {
-        position1.y = 0;
-        ship::ShipSprite.setPosition(position1);
-    }
-
-    angle = ShipSprite.getRotation();
+    /*angle = ShipSprite.getRotation();
     angle -= (angle - 90) * 2;
 
     ShipSprite.setPosition(
         position1.x + shipSpeed * sin((angle)*M_PI / 180),
-        position1.y + shipSpeed * cos((angle)*M_PI / 180));
+        position1.y + shipSpeed * cos((angle)*M_PI / 180));*/
 
-    position1 = ShipSprite.getPosition();
-    ViewCenter = ShipSprite.getPosition();
-
-    if (ViewCenter.x < screenX / 2)
-        ViewCenter.x = screenX / 2;
-    if (ViewCenter.y < screenY / 2)
-        ViewCenter.y = screenY / 2;
-
-    if (ViewCenter.x > mainX - screenX / 2)
-        ViewCenter.x = mainX - screenX / 2;
-
-    if (ViewCenter.y > mainY - screenY / 2)
-        ViewCenter.y = mainY - screenY / 2;
-
-    foneSprite.setPosition(ShipSprite.getPosition());
-    view = window->getView();
-    view.setCenter(ViewCenter);
-    window->setView(view);
+    //---
+    std::cout << body->GetAngularVelocity() << std::endl;
+    body->SetTransform(body->GetPosition(), (ShipSprite.getRotation() - 180) / DEG);
+    b2Vec2 force = b2Vec2((cos(body->GetAngle() - 4.7) * 20.0f), (sin(body->GetAngle() - 4.7) * 20.0f));
+    b2Vec2 ImpulsePoint = body->GetPosition();
+    //body->ApplyLinearImpulse(force, ImpulsePoint, true);
+    body->ApplyForce(force, ImpulsePoint, true);
+    //---
 }
 
 void ship::makeShoot()
@@ -271,7 +306,15 @@ void ship::shipPerformance()
 
 void ship::reset()
 {
-    ShipSprite.setPosition(ViewCenter);
+    // ShipSprite.setPosition(ViewCenter);
+
+    b2Vec2 posit;
+    posit.x = ViewCenter.x / SCALE;
+    posit.y = ViewCenter.y / SCALE;
+    body->SetTransform(posit, (0 - 180) / DEG);
+    body->SetLinearVelocity(b2Vec2(0, 0));
+    body->SetAngularVelocity(0);
+
     shipTexture.loadFromFile("Images/ship.png");
     ShipSprite.setTexture(shipTexture);
     ShipSprite.setRotation(0);

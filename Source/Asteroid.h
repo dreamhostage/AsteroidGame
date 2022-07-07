@@ -188,6 +188,11 @@ public:
     Vector2f mousePosition;
     Vector2i pixelPos;
 
+    b2BodyDef bodyDef;
+    b2Body* body = nullptr;
+    b2CircleShape dynamicCircle;
+    b2FixtureDef fixtureDef;
+
     ship();
     void draw();
     void reset();

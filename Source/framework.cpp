@@ -114,9 +114,26 @@ void framework::setSettings(
     this->godmode = godmode;
     // this->godmode = true;
     ship::ShipSprite.setPosition(mainX / 2, mainY / 2);
+    ShipSprite.setRotation(0);
 
     Gravity.Set(0.f, 0.f);
     World = std::make_unique<b2World>(Gravity);
+
+    //---
+    ship::bodyDef.type = b2_dynamicBody;
+    ship::bodyDef.position.Set((mainX / 2) / SCALE, (mainY / 2) / SCALE);
+    ship::body = World->CreateBody(&(ship::bodyDef));
+
+    ship::dynamicCircle.m_radius = 15 / SCALE;
+
+    ship::fixtureDef.shape = &(ship::dynamicCircle);
+    ship::fixtureDef.density = 5.0f;
+    ship::fixtureDef.friction = 0.3f;
+
+    ship::body->CreateFixture(&(ship::fixtureDef));
+
+    ship::body->SetTransform(ship::body->GetPosition(), (0 - 180) / DEG);
+    //---
 
     CSSpawn();
 }
