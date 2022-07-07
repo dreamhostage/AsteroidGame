@@ -208,19 +208,6 @@ void asteroids::draw()
         }
         if (tunnelActivated)
         {
-            if (!isAsteroidsPassive)
-            {
-                position2 = tunnel::portalCircle.getPosition();
-                for (int i = 0; i < ast.size(); ++i)
-                {
-                    position1 = ast[i].sprite.getPosition();
-                    vd = position2 - position1;
-                    angle = std::atan2(vd.y, vd.x) * 180.f / M_PI + 90;
-                    ast[i].rotation = angle;
-                    ast[i].speed = 1;
-                }
-                isAsteroidsPassive = true;
-            }
             position2 = tunnel::portalCircle.getPosition();
             for (int i = 0; i < ast.size(); ++i)
             {

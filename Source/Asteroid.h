@@ -296,6 +296,7 @@ public:
         bool destroyed = false;
         bool selected = false;
         bool shoot = false;
+        bool DestroyedImpulse = false;
         unsigned short int ClissanShipBlaming = 0;
 
 		b2BodyDef bodyDef;

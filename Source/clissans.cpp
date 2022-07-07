@@ -3,6 +3,7 @@
 clissans::clissans()
 {
     clissanshipTexture.loadFromFile("Images/clissanship.png");
+    ClissanDestroyedShipTexture.loadFromFile("Images/DestroyedClissanShip.png");
     clissansbulletTexture.loadFromFile("Images/clisanbullet.png");
     ClissansLifeTexture.loadFromFile("Images/ClissansLife.png");
     clissansshootBuffer.loadFromFile("Sounds/clisanshoot.ogg");
@@ -166,17 +167,62 @@ void clissans::makeShootIfClose(clissanShips& ClissansShip)
 void clissans::draw()
 {
     if (gameStarted) {
-        for (int i = 0; i < clisansShipsArray.size(); ++i) {
-            if (clisansShipsArray[i].destroyed) {
-                if (clisansShipsArray[i].final < 65) {
-                    ClissanShipExplosion(clisansShipsArray[i]);
-                } else {
+        for (int i = 0; i < clisansShipsArray.size(); ++i) 
+        {
+            if (clisansShipsArray[i].destroyed) 
+            {
+                if (clisansShipsArray[i].sprite.getPosition().x > mainX + 100 ||
+                    clisansShipsArray[i].sprite.getPosition().x < -100 ||
+                    clisansShipsArray[i].sprite.getPosition().y > mainY + 100 ||
+                    clisansShipsArray[i].sprite.getPosition().y < -100)
+                {
                     std::vector<clissanShips>::iterator csit = clisansShipsArray.begin();
                     clisansShipsArray.erase(csit + i);
+                    continue;
+                }
+
+                b2Vec2 pos = clisansShipsArray[i].body->GetPosition();
+                float angl = clisansShipsArray[i].body->GetAngle();
+                clisansShipsArray[i].sprite.setPosition(pos.x * SCALE, pos.y * SCALE);
+                clisansShipsArray[i].sprite.setRotation(angl * DEG);
+
+                if (clisansShipsArray[i].final < 65) 
+                {
+                    ClissanShipExplosion(clisansShipsArray[i]);
+                } 
+
+                if (tunnelActivated)
+                {
+                    position2 = tunnel::portalCircle.getPosition();
+                    position1 = clisansShipsArray[i].sprite.getPosition();
+                    vd = position2 - position1;
+
+                    distanse = sqrt(
+                        (position1.x - position2.x) * (position1.x - position2.x)
+                        + (position1.y - position2.y) * (position1.y - position2.y));
+                    if (distanse < 60)
+                    {
+                        std::vector<clissanShips>::iterator csit = clisansShipsArray.begin();
+                        clisansShipsArray.erase(csit + i);
+                        continue;
+                    }
+                    else
+                    {
+                        position2 = tunnel::portalCircle.getPosition();
+                        position1 = clisansShipsArray[i].sprite.getPosition();
+                        vd = position2 - position1;
+                        angle = std::atan2(vd.y, vd.x) * 180.f / M_PI + 90;
+
+                        clisansShipsArray[i].body->SetTransform(clisansShipsArray[i].body->GetPosition(), (angle - 180) / DEG);
+                        b2Vec2 force = b2Vec2((cos(clisansShipsArray[i].body->GetAngle() - 4.7) * 30), (sin(clisansShipsArray[i].body->GetAngle() - 4.7) * 30));
+
+                        clisansShipsArray[i].body->ApplyForce(force, clisansShipsArray[i].body->GetPosition(), true);
+                    }
                 }
             } else {
                 if (Keyboard::isKeyPressed(Keyboard::F))
-                    if (Mouse::isButtonPressed(Mouse::Left)) {
+                    if (Mouse::isButtonPressed(Mouse::Left)) 
+                    {
                         sellectClissanShip(clisansShipsArray[i]);
                     }
 
@@ -212,13 +258,15 @@ void clissans::draw()
                         + (position1.y - position2.y) * (position1.y - position2.y));
                     if (distanse < 60)
                     {
-                        clisansShipsArray[i].final = 65;
-                        clisansShipsArray[i].destroyed = true;
+                        std::vector<clissanShips>::iterator csit = clisansShipsArray.begin();
+                        clisansShipsArray.erase(csit + i);
+                        continue;
                     }
                 }
 
                 window->draw(clisansShipsArray[i].sprite);
             }
+            window->draw(clisansShipsArray[i].sprite);
         }
         drawBullets();
         if (!tunnelActivated)
@@ -282,7 +330,10 @@ void clissans::ClissanShipBulletsChecking(clissanShips& ClissansShip)
             (bulletPos.x - temp.x) * (bulletPos.x - temp.x)
             + (bulletPos.y - temp.y) * (bulletPos.y - temp.y));
         if (bulletDist < 50) {
-            ClissansShip.health -= 10;
+            if (!tunnelActivated)
+            {
+                ClissansShip.health -= 10;
+            }
             ClissansShip.LifeSprite.setScale(
                 ClissansShip.LifeSprite.getScale().x - 0.1, ClissansShip.LifeSprite.getScale().y);
             std::vector<Sprite>::iterator bit = bulletsArray.begin();
@@ -308,7 +359,12 @@ void clissans::ClissanShipBulletsChecking(clissanShips& ClissansShip)
         }
         points += 10;
 
-        RunDestroyedLiveCycle(&ClissansShip);
+        if (!ClissansShip.DestroyedImpulse)
+        {
+            ClissansShip.DestroyedImpulse = true;
+            RunDestroyedLiveCycle(&ClissansShip);
+
+        }
     }
 }
 
