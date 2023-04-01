@@ -33,7 +33,6 @@ Menus::Menus()
     music.setLoop(true);
     music.setVolume(50);
 
-    pause = true;
     selectButton = false;
     tapOnButton = false;
     resumePlay = false;
@@ -64,7 +63,7 @@ void Menus::startMenu()
         }
     }
 
-    if (pause) {
+    if (bIsGamePaused) {
         if (!tapOnButton) {
             if (banerSprite.getPosition().y
                 > ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height))) {
@@ -143,7 +142,7 @@ void Menus::startMenu()
                 window->draw(exitSptite);
             } else {
                 gameStarted = true;
-                pause = false;
+                bIsGamePaused = false;
             }
         }
     }
@@ -162,5 +161,5 @@ void Menus::reset()
     gameoverSprite.setPosition(view.getCenter().x, view.getCenter().y - 700);
 
     tapOnButton = false;
-    pause = true;
+    bIsGamePaused = true;
 }

@@ -93,7 +93,7 @@ ship::ship()
     aimSelected = false;
     startposition = false;
     freeze = false;
-    isInsideTunnel = false;
+    bIsPlayerShipInsideTunnel = false;
 
     shipRotation = 3;
     shipSpeed = 3;
@@ -120,7 +120,7 @@ void ship::drawBullets()
     }
 }
 
-void ship::draw()
+void ship::Tick()
 {
     if (gameStarted) {
         if (!GameOver) {
@@ -194,7 +194,7 @@ void ship::draw()
                 }
                 if (Keyboard::isKeyPressed(Keyboard::W)) 
                 {
-                    if (!isInsideTunnel)
+                    if (!bIsPlayerShipInsideTunnel)
                     {
                         moveShip();
                         smoke::add(ShipSprite);
@@ -203,7 +203,7 @@ void ship::draw()
             }
             if (!Keyboard::isKeyPressed(Keyboard::F))
                 if (Mouse::isButtonPressed(Mouse::Left)) {
-                    if (!isInsideTunnel)
+                    if (!bIsPlayerShipInsideTunnel)
                     {
                         makeShoot();
                     }
@@ -353,7 +353,8 @@ void ship::tunnelEngine()
                     portalCircle.setRadius(portalSize + 20);
                     portalCircle.setOrigin(portalCircle.getRadius(), portalCircle.getRadius());
                 }
-                isInsideTunnel = true;
+                bIsPlayerShipInsideTunnel = true;
+                body->SetAwake(false);
             }
         }
     }

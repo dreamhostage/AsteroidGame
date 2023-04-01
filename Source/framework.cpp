@@ -281,7 +281,7 @@ void framework::run()
         }
 
         if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-            if (!pause) {
+            if (!bIsGamePaused) {
                 Menus::reset();
             }
         }
@@ -301,19 +301,16 @@ void framework::run()
 
         window->draw(foneSprite);
         window->draw(screenSprite);
-        if (!pause) {
-            ImprovementsBase::draw();
-            if (!isInsideTunnel)
-            {
-                rockets::draw();
-                laser::draw();
-            }
-            asteroids::draw();
-            ship::draw();
-            clissans::draw();
-            CosmoStation::draw();
+        if (!bIsGamePaused) {
+            ImprovementsBase::Tick();
+            rockets::Tick();
+            laser::Tick();
+            asteroids::Tick();
+            ship::Tick();
+            clissans::Tick();
+            CosmoStation::Tick();
             smoke::draw(*window);
-            words::draw();
+            words::Tick();
             Gameover();
         }
         else
@@ -322,10 +319,10 @@ void framework::run()
         }
         if (tunnelActivated)
         {
-            tunnel::draw();
+            tunnel::Tick();
         }
         Menus::startMenu();
-        if (!isInsideTunnel)
+        if (!bIsPlayerShipInsideTunnel || bIsGamePaused)
         {
             window->draw(cursorSprite);
         }

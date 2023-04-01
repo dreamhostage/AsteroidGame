@@ -3,9 +3,11 @@
 GlobalVariables::GlobalVariables()
 {
     GameOver = false;
-    godmode = false;
+    godmode = true;
     gameStarted = false;
     exitGame = false;
+
+    bIsGamePaused = true;
 
     srand(time(0));
 }

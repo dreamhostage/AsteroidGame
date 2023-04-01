@@ -53,12 +53,12 @@ CosmoStation::CosmoStation()
     explSound = false;
     CSSelected = false;
     NeonBallAction = false;
-    CSActivated = false;
+    CSActivated = true;
     NBtaleWait = false;
     NBexplActivate = false;
 }
 
-void CosmoStation::draw()
+void CosmoStation::Tick()
 {
     if (CSalive) {
         moving();

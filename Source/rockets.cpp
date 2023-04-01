@@ -26,8 +26,13 @@ rockets::rockets()
     n = 0;
 }
 
-void rockets::draw()
+void rockets::Tick()
 {
+    if (bIsPlayerShipInsideTunnel)
+    {
+        return;
+    }
+
     if (rocketExplosion) {
         drawRocketExplosion();
     }

@@ -16,7 +16,7 @@ tunnel::tunnel()
     tunnelActivated = false;
 }
 
-void tunnel::draw()
+void tunnel::Tick()
 {
     window->draw(portalCircle);
     if (pixels.size() < pixelCount)

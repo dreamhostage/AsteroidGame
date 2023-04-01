@@ -149,7 +149,7 @@ void asteroids::AsteroidSpawning()
     }
 }
 
-void asteroids::draw()
+void asteroids::Tick()
 {
     if (gameStarted) {
         if (!tunnelActivated)
@@ -192,7 +192,7 @@ void asteroids::draw()
 
                 if (gameStarted) {
                     if (!destroyed) {
-                        if (!isInsideTunnel)
+                        if (!bIsPlayerShipInsideTunnel)
                         {
                             shipDistanceMonitoring(ast[i]);
                         }

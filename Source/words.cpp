@@ -13,7 +13,7 @@ words::words()
 	phraseNumber = 1;
 }
 
-void words::draw()
+void words::Tick()
 {
 	if (!points)
 	{

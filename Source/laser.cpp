@@ -20,8 +20,13 @@ laser::laser()
     autoAimTime = 0;
 }
 
-void laser::draw()
+void laser::Tick()
 {
+    if (bIsPlayerShipInsideTunnel)
+    {
+        return;
+    }
+
     if (gameStarted) {
 
         if (laserShootCount) {

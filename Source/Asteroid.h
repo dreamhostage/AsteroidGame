@@ -42,6 +42,8 @@ public:
     bool godmode;
     bool gameStarted;
     bool exitGame;
+    bool bIsPlayerShipInsideTunnel;
+    bool bIsGamePaused;
     View view;
     Vector2f globalCenter;
     Vector2u size;
@@ -110,7 +112,7 @@ public:
     int pixelCount;
 
     tunnel();
-    void draw();
+    void Tick();
     void setPosition(sf::Vector2f position);
     void reset();
 };
@@ -183,7 +185,6 @@ public:
     bool aimSelected;
     bool freeze;
     bool startposition;
-    bool isInsideTunnel;
     std::string text;
     Vector2f mousePosition;
     Vector2i pixelPos;
@@ -194,7 +195,7 @@ public:
     b2FixtureDef fixtureDef;
 
     ship();
-    void draw();
+    void Tick();
     void reset();
 };
 
@@ -218,7 +219,7 @@ class ImprovementsBase : public ship {
 
 public:
     ImprovementsBase();
-    void draw();
+    void Tick();
     void add(Vector2f& position, ImprovementsTypes type);
     void reset();
 };
@@ -254,7 +255,7 @@ public:
     bool isAsteroidsPassive;
 
     asteroids();
-    void draw();
+    void Tick();
     void reset();
 
 private:
@@ -286,7 +287,7 @@ public:
     int autoAimTime;
 
     laser();
-    void draw();
+    void Tick();
 };
 
 class clissans : public laser {
@@ -341,7 +342,7 @@ public:
     clissanShips* selectedClissansShip;
 
     clissans();
-    void draw();
+    void Tick();
     void reset();
 
 protected:
@@ -361,7 +362,7 @@ class CosmoStation : public clissans {
 public:
     CosmoStation();
     void CSSpawn();
-    void draw();
+    void Tick();
     void reset();
     bool explSound;
     bool CSalive;
@@ -440,7 +441,7 @@ public:
     int n;
 
     rockets();
-    void draw();
+    void Tick();
 
 private:
     void drawRocketExplosion();
@@ -486,7 +487,6 @@ public:
     View startGOview;
     bool selectButton;
     bool tapOnButton;
-    bool pause;
     bool resumePlay;
     Clock PointsSpeedRaising;
 };
@@ -500,7 +500,7 @@ public:
     Vector2f destinationPosition;
     Vector2f appearingPosition;
     Clock timer;
-    void draw();
+    void Tick();
     void reset();
     bool startPositionSet;
     bool textActivated;

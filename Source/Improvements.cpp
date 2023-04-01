@@ -28,7 +28,7 @@ ImprovementsBase::ImprovementsBase()
     autoAimImprSprite.setOrigin(size.x / 2, size.y / 2);
 }
 
-void ImprovementsBase::draw()
+void ImprovementsBase::Tick()
 {
     for (int i = 0; i < ImprovementsArray.size(); ++i) {
         bool destroyed = false;

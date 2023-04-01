@@ -164,7 +164,7 @@ void clissans::makeShootIfClose(clissanShips& ClissansShip)
     }
 }
 
-void clissans::draw()
+void clissans::Tick()
 {
     if (gameStarted) {
         for (int i = 0; i < clisansShipsArray.size(); ++i) 
