@@ -28,7 +28,7 @@ rockets::rockets()
 
 void rockets::Tick()
 {
-    if (bIsPlayerShipInsideTunnel)
+    if (bIsPlayerShipInsideTunnel || !ship::health)
     {
         return;
     }

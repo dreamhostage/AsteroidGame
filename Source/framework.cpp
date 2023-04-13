@@ -299,7 +299,6 @@ void framework::run()
         cursorSprite.setPosition(window->mapPixelToCoords(Mouse::getPosition(*window)));
         mousePosition = window->mapPixelToCoords(Mouse::getPosition(*window));
 
-        window->draw(foneSprite);
         window->draw(screenSprite);
         if (!bIsGamePaused) {
             ImprovementsBase::Tick();

@@ -3,7 +3,7 @@
 GlobalVariables::GlobalVariables()
 {
     GameOver = false;
-    godmode = true;
+    godmode = false;
     gameStarted = false;
     exitGame = false;
 

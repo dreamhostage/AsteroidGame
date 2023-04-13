@@ -22,6 +22,11 @@ laser::laser()
 
 void laser::Tick()
 {
+    if (!ship::health)
+    {
+        return;
+    }
+
     if (bIsPlayerShipInsideTunnel)
     {
         return;

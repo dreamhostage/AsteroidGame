@@ -141,7 +141,6 @@ public:
     Sprite shieldResistSprite;
     Sprite bulletSprite;
     Sprite ShipSprite;
-    Texture foneTexture;
 
     Sprite foneSprite;
     SoundBuffer ShipImprovementSoundBuffer;
@@ -488,6 +487,7 @@ public:
     bool selectButton;
     bool tapOnButton;
     bool resumePlay;
+    bool IsObjectFrozen = false;
     Clock PointsSpeedRaising;
 };
 

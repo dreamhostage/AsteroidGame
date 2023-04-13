@@ -17,9 +17,7 @@ ship::ship()
     font.loadFromFile("Images/18949.ttf");
     ammoTexture.loadFromFile("Images/ammo.png");
     shieldCountTexture.loadFromFile("Images/shield.png");
-    foneTexture.loadFromFile("Images/fone.png");
 
-    foneSprite.setTexture(foneTexture);
     shieldCountSprite.setTexture(shieldCountTexture);
     size = shieldCountTexture.getSize();
     shieldCountSprite.setOrigin(size.x / 2, size.y / 2);
@@ -49,7 +47,6 @@ ship::ship()
     ShipSprite.setOrigin(size.x / 2, size.y / 2);
     size = bulletTexture.getSize();
     bulletSprite.setOrigin(size.x / 2, size.y);
-    size = foneTexture.getSize();
     foneSprite.setOrigin(size.x / 2, size.y / 2);
     shieldResistSprite.setTexture(shieldResistTexture);
     size = shieldResistTexture.getSize();
@@ -214,10 +211,13 @@ void ship::Tick()
 
         if (gameStarted) {
             window->draw(ShipSprite);
-            window->draw(bulletsSizeText);
             window->draw(pointsText);
-            window->draw(LifeBar);
-            window->draw(ammoSprite);
+            if (ship::health)
+            {
+                window->draw(ammoSprite);
+                window->draw(bulletsSizeText);
+                window->draw(LifeBar);
+            }
             drawBullets();
         }
         tunnelEngine();
@@ -234,7 +234,6 @@ void ship::moveShip()
         position1.y + shipSpeed * cos((angle)*M_PI / 180));*/
 
     //---
-    std::cout << body->GetAngularVelocity() << std::endl;
     body->SetTransform(body->GetPosition(), (ShipSprite.getRotation() - 180) / DEG);
     b2Vec2 force = b2Vec2((cos(body->GetAngle() - 4.7) * 20.0f), (sin(body->GetAngle() - 4.7) * 20.0f));
     b2Vec2 ImpulsePoint = body->GetPosition();
@@ -272,36 +271,39 @@ void ship::makeShoot()
 
 void ship::shipPerformance()
 {
-    bulletsSizeText.setPosition(ViewCenter.x - screenX / 2 + 50, ViewCenter.y - ammoTexture.getSize().y / 3);
-    pointsText.setPosition(ViewCenter.x, ViewCenter.y - screenY / 2 + 10);
-    ammoSprite.setPosition(ViewCenter.x - screenX / 2 + ammoTexture.getSize().x / 2, ViewCenter.y);
-
-    bulletsSizeText.setString(std::to_string(bulletsSize));
-
-    pointsText.setString(std::to_string(points));
-
-    if (health <= 30)
+    if (ship::health)
     {
-        ship::LifeBar.setFillColor(sf::Color(121, 0, 0, 180));
+        bulletsSizeText.setPosition(ViewCenter.x - screenX / 2 + 50, ViewCenter.y - ammoTexture.getSize().y / 3);
+        pointsText.setPosition(ViewCenter.x, ViewCenter.y - screenY / 2 + 10);
+        ammoSprite.setPosition(ViewCenter.x - screenX / 2 + ammoTexture.getSize().x / 2, ViewCenter.y);
+
+        bulletsSizeText.setString(std::to_string(bulletsSize));
+
+        pointsText.setString(std::to_string(points));
+
+        if (health <= 30)
+        {
+            ship::LifeBar.setFillColor(sf::Color(121, 0, 0, 180));
+        }
+        else
+        {
+            ship::LifeBar.setFillColor(sf::Color(0, 121, 0, 180));
+        }
+
+        if (shieldCount) {
+            shieldText.setString(std::to_string(shieldCount));
+
+            shieldText.setPosition(ViewCenter.x - screenX / 2 + shieldCountTexture.getSize().x / 2, ViewCenter.y - shieldCountTexture.getSize().y + 2);
+            shieldCountSprite.setPosition(ViewCenter.x - screenX / 2 + shieldCountTexture.getSize().x / 3 - 5, ViewCenter.y - shieldCountTexture.getSize().y / 2 - 15);
+
+            shieldResistSprite.setPosition(ShipSprite.getPosition());
+            window->draw(shieldResistSprite);
+            window->draw(shieldText);
+            window->draw(shieldCountSprite);
+        }
+
+        LifeBar.setPosition(view.getCenter().x, view.getCenter().y - (screenY / 2) + 10);
     }
-    else
-    {
-        ship::LifeBar.setFillColor(sf::Color(0, 121, 0, 180));
-    }
-
-    if (shieldCount) {
-        shieldText.setString(std::to_string(shieldCount));
-
-        shieldText.setPosition(ViewCenter.x - screenX / 2 + shieldCountTexture.getSize().x / 2, ViewCenter.y - shieldCountTexture.getSize().y + 2);
-        shieldCountSprite.setPosition(ViewCenter.x - screenX / 2 + shieldCountTexture.getSize().x / 3 - 5, ViewCenter.y - shieldCountTexture.getSize().y / 2 - 15);
-
-        shieldResistSprite.setPosition(ShipSprite.getPosition());
-        window->draw(shieldResistSprite);
-        window->draw(shieldText);
-        window->draw(shieldCountSprite);
-    }
-
-    LifeBar.setPosition(view.getCenter().x, view.getCenter().y - (screenY / 2) + 10);
 }
 
 void ship::reset()

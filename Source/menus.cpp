@@ -63,7 +63,13 @@ void Menus::startMenu()
         }
     }
 
-    if (bIsGamePaused) {
+    if (bIsGamePaused) 
+    {
+        if (!IsObjectFrozen)
+        {
+            ship::body->SetEnabled(false);
+        }
+
         if (!tapOnButton) {
             if (banerSprite.getPosition().y
                 > ViewCenter.y + ((screenX * screenY * 300) / (VideoMode::getDesktopMode().width * VideoMode::getDesktopMode().height))) {
@@ -143,6 +149,7 @@ void Menus::startMenu()
             } else {
                 gameStarted = true;
                 bIsGamePaused = false;
+                ship::body->SetEnabled(true);
             }
         }
     }
