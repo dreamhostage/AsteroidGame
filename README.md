@@ -1,4 +1,4 @@
-# AsteroidLinux
+# Asteroid Game
 
 Project created to improve my skills in vector algebra and SFML game library.
 
@@ -12,6 +12,7 @@ Project created to improve my skills in vector algebra and SFML game library.
 **New changes:**
 - Added the first boss;
 - Added smoke from ships and rockets;
+- Integrated Box2D library;
 
 ![alt text](https://github.com/dreamhostage/AsteroidLinux/blob/master/Images/Screenshot.png?raw=true)
 
